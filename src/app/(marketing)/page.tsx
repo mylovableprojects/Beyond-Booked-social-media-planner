@@ -41,8 +41,8 @@ export default function MarketingPage() {
         @media (max-width: 640px) {
           .lp-hero-section { padding-bottom: 2rem !important; }
           .lp-hero-inner { padding: 2rem 1rem 1rem !important; }
-          .lp-hero-headline { font-size: 1.75rem !important; margin-bottom: 1rem !important; }
-          .lp-hero-subtext { font-size: 0.875rem !important; margin-bottom: 1.25rem !important; }
+          .lp-hero-headline { font-size: 2.1rem !important; margin-bottom: 1rem !important; }
+          .lp-hero-subtext { font-size: 0.9rem !important; margin-bottom: 1.25rem !important; }
           .lp-hero-eyebrow { margin-bottom: 1rem !important; }
           .lp-hero-cta-row { gap: 0.75rem !important; flex-wrap: wrap !important; }
           .lp-hero-card { animation: none !important; }
