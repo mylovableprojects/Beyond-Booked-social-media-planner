@@ -1298,6 +1298,80 @@ export default function MarketingPage() {
         </section>
 
         {/* ═══════════════════════════════════════
+            PRICING
+        ═══════════════════════════════════════ */}
+        <section style={{ background: "var(--cream)", padding: "6rem 1.5rem" }}>
+          <div style={{ maxWidth: 560, margin: "0 auto", textAlign: "center" }}>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", justifyContent: "center", marginBottom: "0.5rem" }}>
+              <div style={{ width: 28, height: 3, background: "var(--accent)", borderRadius: 2 }} />
+              <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted-fg)" }}>
+                Pricing
+              </span>
+              <div style={{ width: 28, height: 3, background: "var(--accent)", borderRadius: 2 }} />
+            </div>
+
+            <h2 style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(1.75rem, 4vw, 2.75rem)", fontWeight: 800, color: "var(--navy)", letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: "1rem" }}>
+              One plan. Everything included.
+            </h2>
+            <p style={{ fontSize: "0.95rem", color: "var(--muted-fg)", lineHeight: 1.7, marginBottom: "2.5rem", maxWidth: 420, margin: "0 auto 2.5rem" }}>
+              No tiers, no add-ons. Just everything you need to keep your social media full of posts people actually read.
+            </p>
+
+            {/* Pricing card */}
+            <div
+              className="animate-fade-up"
+              style={{
+                background: "#fff",
+                border: "1.5px solid var(--border)",
+                borderRadius: "1.75rem",
+                padding: "2.75rem 2.5rem",
+                boxShadow: "0 12px 48px rgba(16,23,44,0.08)",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              {/* Accent top bar */}
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "linear-gradient(90deg, var(--accent), var(--gold))", borderRadius: "1.75rem 1.75rem 0 0" }} />
+
+              <div style={{ marginBottom: "1.75rem" }}>
+                <div style={{ fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--muted-fg)", marginBottom: "0.5rem" }}>
+                  Annual Plan
+                </div>
+                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: "0.25rem", marginBottom: "0.4rem" }}>
+                  <span style={{ fontFamily: "var(--font-syne)", fontSize: "4rem", fontWeight: 800, color: "var(--navy)", lineHeight: 1 }}>$297</span>
+                  <span style={{ fontSize: "1rem", color: "var(--muted-fg)", fontWeight: 500, paddingBottom: "0.5rem" }}>/year</span>
+                </div>
+                <p style={{ fontSize: "0.82rem", color: "var(--muted-fg)" }}>That&apos;s less than $25/month. Less than one booking pays for itself.</p>
+              </div>
+
+              {/* Features list */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "2rem", textAlign: "left" }}>
+                {[
+                  "27 posts/month across Facebook, Instagram & Google",
+                  "All 4 content frameworks — including Beyond Bookings",
+                  "Platform-specific formatting built in",
+                  "CSV export + shareable links for every run",
+                  "Unlimited profile updates",
+                ].map((feature) => (
+                  <div key={feature} style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+                    <span style={{ color: "var(--accent)", fontWeight: 700, fontSize: "0.9rem", marginTop: "0.1rem", flexShrink: 0 }}>✓</span>
+                    <span style={{ fontSize: "0.9rem", color: "var(--navy)", lineHeight: 1.5 }}>{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Link href="/signup" className="lp-btn-primary" style={{ width: "100%", justifyContent: "center", fontSize: "1rem", padding: "0.975rem 2rem" }}>
+                Try free, then upgrade →
+              </Link>
+              <p style={{ marginTop: "1rem", fontSize: "0.78rem", color: "var(--muted-fg)" }}>
+                Start with a free trial run — no credit card required.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════
             FINAL CTA
         ═══════════════════════════════════════ */}
         <section
