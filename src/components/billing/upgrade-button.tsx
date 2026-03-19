@@ -9,28 +9,11 @@ export function UpgradeButton({ label = "Get full access →" }: { label?: strin
     setLoading(true);
     try {
       const res = await fetch("/api/stripe/checkout", { method: "POST" });
-      const text = await res.text();
-      let data: { url?: string; error?: string };
-      try {
-        data = JSON.parse(text) as { url?: string; error?: string };
-      } catch {
-        alert("Server error: " + text.slice(0, 200));
-        setLoading(false);
-        return;
-      }
-      if (data.error) {
-        alert("Error: " + data.error);
-        setLoading(false);
-        return;
-      }
-      if (!data.url) {
-        alert("No checkout URL returned. Status: " + res.status);
-        setLoading(false);
-        return;
-      }
-      window.location.href = data.url;
-    } catch (err) {
-      alert("Fetch failed: " + String(err));
+      const { url, error } = await res.json() as { url?: string; error?: string };
+      if (error) throw new Error(error);
+      window.location.href = url!;
+    } catch {
+      alert("Something went wrong. Please try again.");
       setLoading(false);
     }
   }
