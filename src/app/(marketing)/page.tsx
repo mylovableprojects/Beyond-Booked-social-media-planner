@@ -39,8 +39,12 @@ export default function MarketingPage() {
 
         /* ── Responsive: 640px (mobile) ── */
         @media (max-width: 640px) {
-          .lp-hero-section { padding-bottom: 3rem !important; }
-          .lp-hero-inner { padding: 3rem 1rem 1.5rem !important; }
+          .lp-hero-section { padding-bottom: 2rem !important; }
+          .lp-hero-inner { padding: 2rem 1rem 1rem !important; }
+          .lp-hero-headline { font-size: 1.75rem !important; margin-bottom: 1rem !important; }
+          .lp-hero-subtext { font-size: 0.875rem !important; margin-bottom: 1.25rem !important; }
+          .lp-hero-eyebrow { margin-bottom: 1rem !important; }
+          .lp-hero-cta-row { gap: 0.75rem !important; flex-wrap: wrap !important; }
           .lp-hero-card { animation: none !important; }
           .lp-browser-mockup-header { padding: 1rem !important; flex-wrap: wrap; gap: 0.5rem; }
           .lp-browser-mockup-buttons { display: none !important; }
@@ -164,7 +168,7 @@ export default function MarketingPage() {
               <div>
                 {/* Eyebrow */}
                 <div
-                  className="animate-fade-up"
+                  className="animate-fade-up lp-hero-eyebrow"
                   style={{
                     display: "inline-flex", alignItems: "center", gap: "0.5rem",
                     padding: "0.35rem 1rem",
@@ -182,7 +186,7 @@ export default function MarketingPage() {
 
                 {/* Headline */}
                 <h1
-                  className="animate-fade-up animate-fade-up-1"
+                  className="animate-fade-up animate-fade-up-1 lp-hero-headline"
                   style={{
                     fontFamily: "var(--font-syne)",
                     fontSize: "clamp(2.5rem, 5vw, 3.75rem)",
@@ -221,7 +225,7 @@ export default function MarketingPage() {
                 </h1>
 
                 <p
-                  className="animate-fade-up animate-fade-up-2"
+                  className="animate-fade-up animate-fade-up-2 lp-hero-subtext"
                   style={{
                     fontSize: "1.05rem",
                     lineHeight: 1.7,
@@ -233,7 +237,7 @@ export default function MarketingPage() {
                   Generate human, emotional, ready-to-post content for Facebook, Instagram, and Google Business Profile. Four content frameworks. Three platforms. About 10 seconds per run.
                 </p>
 
-                <div className="animate-fade-up animate-fade-up-3" style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+                <div className="animate-fade-up animate-fade-up-3 lp-hero-cta-row" style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
                   <Link href="/signup" className="lp-btn-primary">
                     Start generating free →
                   </Link>
