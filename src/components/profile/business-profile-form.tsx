@@ -74,8 +74,17 @@ export function BusinessProfileForm({
   const timezoneValue = initialProfile?.timezone ?? "America/Chicago";
 
   return (
+    <>
+    <style>{`
+      @media (max-width: 768px) {
+        .profile-grid { grid-template-columns: 1fr !important; }
+        .profile-name-city { grid-template-columns: 1fr !important; }
+        .profile-form-body { padding: 1.25rem !important; }
+        .profile-card-header { padding: 1rem 1.25rem !important; }
+      }
+    `}</style>
     <div
-      className="animate-fade-up"
+      className="profile-grid animate-fade-up"
       style={{
         display: "grid",
         gridTemplateColumns: "1fr 340px",
@@ -95,6 +104,7 @@ export function BusinessProfileForm({
       >
         {/* Card header */}
         <div
+          className="profile-card-header"
           style={{
             background: "var(--navy)",
             padding: "1.25rem 2rem",
@@ -122,6 +132,7 @@ export function BusinessProfileForm({
         <form
           action="/api/profile"
           method="post"
+          className="profile-form-body"
           style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "2rem" }}
         >
           {/* Hidden fields */}
@@ -131,7 +142,7 @@ export function BusinessProfileForm({
           <input type="hidden" name="selectedServiceCategories" value={JSON.stringify(selectedServiceCategories)} />
 
           {/* Business name + City row */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+          <div className="profile-name-city" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
             <label style={{ display: "block" }}>
               <FieldLabel>Business name</FieldLabel>
               <input
@@ -294,5 +305,6 @@ export function BusinessProfileForm({
         </div>
       </div>
     </div>
+    </>
   );
 }
