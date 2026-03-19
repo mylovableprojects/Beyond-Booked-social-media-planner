@@ -139,6 +139,7 @@ export default async function GeneratorPage() {
         savedServiceCategories={serviceCategories}
         city={profile?.city ?? ""}
         stateRegion={profile?.state_region ?? null}
+        isTrial={!profile.is_admin && (profile.trial_runs_used ?? 0) === 0}
       />
     </div>
   );

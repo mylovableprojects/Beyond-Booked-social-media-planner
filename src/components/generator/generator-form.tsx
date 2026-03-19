@@ -16,6 +16,7 @@ type GeneratorFormProps = {
   stateRegion: string | null;
   savedEventTypes: string[];
   savedServiceCategories: string[];
+  isTrial?: boolean;
 };
 
 const PLATFORM_OPTIONS: Array<{ value: Platform; label: string; short: string }> = [
@@ -131,6 +132,7 @@ export function GeneratorForm({
   stateRegion,
   savedEventTypes,
   savedServiceCategories,
+  isTrial = false,
 }: GeneratorFormProps) {
   const currentDate = useMemo(() => new Date(), []);
   const defaultMonth = currentDate.getMonth() + 1;
@@ -154,7 +156,7 @@ export function GeneratorForm({
   const [selectedServiceCategories, setSelectedServiceCategories] = useState<string[]>([]);
   const [month, setMonth] = useState<number>(defaultMonth);
   const [year, setYear] = useState<number>(currentYear);
-  const [postCount, setPostCount] = useState<1 | 3 | 9 | 15>(9);
+  const [postCount, setPostCount] = useState<1 | 3 | 9>(isTrial ? 3 : 9);
   const [promoText, setPromoText] = useState<string>("");
   const [featuredProduct, setFeaturedProduct] = useState<string>("");
   const [running, setRunning] = useState(false);
@@ -651,9 +653,9 @@ export function GeneratorForm({
                 <span style={{ fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted-fg)" }}>
                   Posts
                 </span>
-                <select value={postCount} disabled={running} onChange={(e) => setPostCount(Number(e.target.value) as 1 | 3 | 9 | 15)} style={selectStyle}>
-                  {[1, 3, 9, 15].map((n) => (
-                    <option key={n} value={n}>{n} post{n !== 1 ? "s" : ""} per platform</option>
+                <select value={postCount} disabled={running} onChange={(e) => setPostCount(Number(e.target.value) as 1 | 3 | 9)} style={selectStyle}>
+                  {(isTrial ? [1, 3] : [1, 3, 9]).map((n) => (
+                    <option key={n} value={n}>{n} post{n !== 1 ? "s" : ""} per platform{isTrial && n === 3 ? " (trial max)" : ""}</option>
                   ))}
                 </select>
               </label>

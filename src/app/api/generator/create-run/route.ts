@@ -41,6 +41,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Profile not found." }, { status: 404 });
   }
 
+  // Trial users can only generate 3 posts per platform max
+  const isTrial = !profile.is_admin && (profile.trial_runs_used ?? 0) === 0;
+  if (isTrial && parsed.data.postCount > 3) {
+    return NextResponse.json(
+      { ok: false, error: "Trial accounts are limited to 3 posts per platform." },
+      { status: 400 },
+    );
+  }
+
   // Trial gate — free accounts get one run (admins are exempt)
   if (!profile.is_admin && (profile.trial_runs_used ?? 0) >= 1) {
     return NextResponse.json(
