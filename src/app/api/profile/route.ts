@@ -97,5 +97,5 @@ export async function POST(request: Request) {
     return NextResponse.redirect(new URL("/profile?error=save_failed", request.url));
   }
 
-  return NextResponse.redirect(new URL("/profile?saved=1", request.url));
+  return NextResponse.redirect(new URL("/generator", request.url));
 }
