@@ -22,9 +22,9 @@ async function updateSubscription(userId: string, subscription: Stripe.Subscript
     : subscription.status === "canceled" ? "canceled"
     : "trial";
 
-  const expiresAt = subscription.current_period_end
-    ? new Date(subscription.current_period_end * 1000).toISOString()
-    : null;
+  const periodEnd = (subscription as unknown as { current_period_end?: number }).current_period_end
+    ?? subscription.items?.data?.[0]?.current_period_end;
+  const expiresAt = periodEnd ? new Date(periodEnd * 1000).toISOString() : null;
 
   await admin.from("profiles").update({
     stripe_subscription_id: subscription.id,
