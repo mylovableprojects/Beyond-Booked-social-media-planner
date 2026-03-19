@@ -15,9 +15,9 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Social Content Generator — The Party Rental Toolkit",
+  title: "Beyond Booked — The Party Rental Content Engine",
   description:
-    "Generate human-sounding social media posts for Facebook, Instagram, and Google Business Profile.",
+    "Generate weeks of high-converting social media posts in minutes — built specifically for party rental businesses.",
 };
 
 export default function RootLayout({

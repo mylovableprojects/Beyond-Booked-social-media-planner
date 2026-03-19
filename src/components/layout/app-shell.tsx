@@ -14,18 +14,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2.5 font-display text-white"
-            style={{ fontFamily: "var(--font-syne)" }}
+            className="flex items-center gap-2.5"
+            style={{ textDecoration: "none" }}
           >
             <span
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold text-white"
-              style={{ background: "var(--accent)" }}
+              className="flex h-7 w-7 items-center justify-center rounded-lg font-bold text-white"
+              style={{ background: "var(--accent)", fontFamily: "var(--font-syne)", fontSize: "0.6rem", letterSpacing: "0.02em", flexShrink: 0 }}
             >
-              PR
+              BB
             </span>
-            <span className="text-sm font-semibold tracking-tight">
-              Party Rental Toolkit
-            </span>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.1rem" }}>
+              <span style={{ fontFamily: "var(--font-syne)", fontSize: "0.875rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1 }}>
+                Beyond Booked
+              </span>
+              <span style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.4)", fontWeight: 500, lineHeight: 1 }}>
+                The Party Rental Content Engine
+              </span>
+            </div>
           </Link>
 
           <div className="flex items-center gap-1">

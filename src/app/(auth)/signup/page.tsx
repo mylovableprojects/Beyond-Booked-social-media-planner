@@ -4,16 +4,21 @@ export default function SignupPage() {
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--navy)" }}>
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/" className="flex items-center gap-2.5" style={{ textDecoration: "none" }}>
           <span
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-xs font-bold text-white"
-            style={{ background: "var(--accent)", fontFamily: "var(--font-syne)" }}
+            className="flex h-8 w-8 items-center justify-center rounded-lg font-bold text-white"
+            style={{ background: "var(--accent)", fontFamily: "var(--font-syne)", fontSize: "0.65rem", letterSpacing: "0.02em" }}
           >
-            PR
+            BB
           </span>
-          <span className="text-sm font-semibold text-white" style={{ fontFamily: "var(--font-syne)" }}>
-            Party Rental Toolkit
-          </span>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.1rem" }}>
+            <span style={{ fontFamily: "var(--font-syne)", fontSize: "0.95rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1 }}>
+              Beyond Booked
+            </span>
+            <span style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.4)", fontWeight: 500, lineHeight: 1 }}>
+              The Party Rental Content Engine
+            </span>
+          </div>
         </Link>
       </header>
 
