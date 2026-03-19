@@ -4,16 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const NAV_LINKS = [
+const BASE_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/generator", label: "Generator" },
   { href: "/profile", label: "Profile" },
   { href: "/history", label: "History" },
 ];
 
-export function MobileNav() {
+export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const NAV_LINKS = isAdmin ? [...BASE_LINKS, { href: "/admin", label: "Admin" }] : BASE_LINKS;
 
   return (
     <>

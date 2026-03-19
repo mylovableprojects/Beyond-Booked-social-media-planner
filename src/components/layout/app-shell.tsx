@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MobileNav } from "./mobile-nav";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, isAdmin = false }: { children: React.ReactNode; isAdmin?: boolean }) {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--cream)" }}>
       <style>{`
@@ -53,6 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 { href: "/generator", label: "Generator" },
                 { href: "/profile", label: "Profile" },
                 { href: "/history", label: "History" },
+                ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
               ].map(({ href, label }) => (
                 <Link
                   key={href}
@@ -80,7 +81,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </form>
 
             {/* Mobile hamburger (renders its own slide-out panel) */}
-            <MobileNav />
+            <MobileNav isAdmin={isAdmin} />
           </div>
         </div>
       </header>
