@@ -210,15 +210,15 @@ export function GeneratorForm({
         return;
       }
       if (!res.ok || !result.ok) {
-        setSubmitError(result.error ?? "Failed to create generation run.");
+        setSubmitError("Something went wrong generating your posts. Please try again — if it keeps happening, reach out and we'll sort it out.");
         return;
       }
 
       setGeneratedPosts(result.posts ?? []);
       setBatchId(result.batchId ?? null);
       setSubmitMessage(`${result.posts?.length ?? 0} posts generated.`);
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Failed to create generation run.");
+    } catch {
+      setSubmitError("Something went wrong generating your posts. Please try again — if it keeps happening, reach out and we'll sort it out.");
     } finally {
       setRunning(false);
     }
