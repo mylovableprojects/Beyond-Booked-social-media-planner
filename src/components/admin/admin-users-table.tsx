@@ -23,6 +23,7 @@ export function AdminUsersTable({ users: initial, currentUserId }: Props) {
   const [users, setUsers] = useState(initial);
   const [loading, setLoading] = useState<Record<string, string>>({}); // id → action
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [impersonateLink, setImpersonateLink] = useState<{ link: string; email: string } | null>(null);
 
   async function deleteUser(id: string) {
     setLoading((p) => ({ ...p, [id]: "delete" }));
@@ -53,6 +54,22 @@ export function AdminUsersTable({ users: initial, currentUserId }: Props) {
     } else {
       const { error } = await res.json();
       alert(error ?? "Update failed");
+    }
+    setLoading((p) => { const n = { ...p }; delete n[id]; return n; });
+  }
+
+  async function impersonate(id: string) {
+    setLoading((p) => ({ ...p, [id]: "impersonate" }));
+    const res = await fetch("/api/admin/impersonate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: id }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setImpersonateLink({ link: data.link, email: data.email });
+    } else {
+      alert(data.error ?? "Failed to generate link");
     }
     setLoading((p) => { const n = { ...p }; delete n[id]; return n; });
   }
@@ -120,6 +137,45 @@ export function AdminUsersTable({ users: initial, currentUserId }: Props) {
         </div>
       )}
 
+      {/* Impersonate link modal */}
+      {impersonateLink && (
+        <div className="confirm-overlay" onClick={() => setImpersonateLink(null)}>
+          <div className="confirm-box" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ fontFamily: "var(--font-syne)", fontSize: "1.1rem", fontWeight: 800, color: "var(--navy)", marginBottom: "0.5rem" }}>
+              Login as {impersonateLink.email}
+            </h3>
+            <p style={{ fontSize: "0.82rem", color: "var(--muted-fg)", lineHeight: 1.6, marginBottom: "1rem" }}>
+              Copy this link and open it in an <strong>incognito / private window</strong> so you don't get logged out of your own account. It expires after one use.
+            </p>
+            <div style={{
+              background: "var(--muted)",
+              border: "1px solid var(--border)",
+              borderRadius: "0.625rem",
+              padding: "0.625rem 0.875rem",
+              fontSize: "0.72rem",
+              color: "var(--muted-fg)",
+              wordBreak: "break-all",
+              marginBottom: "1.25rem",
+              fontFamily: "monospace",
+            }}>
+              {impersonateLink.link}
+            </div>
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+              <button className="admin-btn admin-btn-neutral" onClick={() => setImpersonateLink(null)}>
+                Close
+              </button>
+              <button
+                className="admin-btn admin-btn-neutral"
+                onClick={() => void navigator.clipboard.writeText(impersonateLink.link)}
+                style={{ background: "var(--navy)", color: "#fff", borderColor: "var(--navy)" }}
+              >
+                Copy link
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="admin-table-wrap animate-fade-up">
         <table className="admin-table">
           <thead>
@@ -174,6 +230,17 @@ export function AdminUsersTable({ users: initial, currentUserId }: Props) {
                 </td>
                 <td>
                   <div style={{ display: "flex", gap: "0.4rem", flexWrap: "nowrap" }}>
+                    {/* Login as */}
+                    {u.id !== currentUserId && (
+                      <button
+                        className="admin-btn admin-btn-neutral"
+                        disabled={!!loading[u.id]}
+                        onClick={() => impersonate(u.id)}
+                        title="Login as this user"
+                      >
+                        {loading[u.id] === "impersonate" ? "…" : "Login as"}
+                      </button>
+                    )}
                     {/* Reset trial */}
                     {!u.is_admin && u.trial_runs_used > 0 && (
                       <button
