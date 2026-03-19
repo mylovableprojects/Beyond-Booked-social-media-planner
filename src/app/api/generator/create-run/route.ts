@@ -41,7 +41,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Profile not found." }, { status: 404 });
   }
 
-  const isTrial = !profile.is_admin && (profile.trial_runs_used ?? 0) === 0;
+  const isPaid = profile.is_admin || profile.subscription_status === "active";
+  const isTrial = !isPaid && (profile.trial_runs_used ?? 0) === 0;
 
   // Trial users can only generate 3 posts per platform max
   if (isTrial && parsed.data.postCount > 3) {
@@ -51,15 +52,15 @@ export async function POST(request: Request) {
     );
   }
 
-  // Trial gate — free accounts get one run (admins are exempt)
-  if (!profile.is_admin && (profile.trial_runs_used ?? 0) >= 1) {
+  // Trial gate — free accounts get one run, paid/admin are exempt
+  if (!isPaid && (profile.trial_runs_used ?? 0) >= 1) {
     return NextResponse.json(
       { ok: false, error: "trial_limit" },
       { status: 402 },
     );
   }
 
-  // Monthly cap: 27 posts per calendar month (admins exempt)
+  // Monthly cap: 27 posts per calendar month (admins + paid exempt from hard block, but still tracked)
   const MONTHLY_POST_CAP = 27;
   if (!profile.is_admin) {
     const { data: monthRuns } = await supabase

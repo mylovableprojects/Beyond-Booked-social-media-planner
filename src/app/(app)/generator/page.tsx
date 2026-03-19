@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { GeneratorForm } from "@/components/generator/generator-form";
+import { UpgradeButton } from "@/components/billing/upgrade-button";
 import { requireUser } from "@/lib/auth/session";
 import { getProfileWithLibraries } from "@/services/repositories/profiles.repository";
 
@@ -14,8 +15,10 @@ export default async function GeneratorPage() {
     redirect("/onboarding");
   }
 
-  // Trial used — show lockout immediately, no form (admins exempt)
-  if (!profile.is_admin && (profile.trial_runs_used ?? 0) >= 1) {
+  const isPaid = profile.is_admin || profile.subscription_status === "active";
+
+  // Trial used and not paid — show upgrade screen
+  if (!isPaid && (profile.trial_runs_used ?? 0) >= 1) {
     return (
       <div>
         <div className="animate-fade-up mb-8">
@@ -67,27 +70,13 @@ export default async function GeneratorPage() {
           >
             You&apos;ve used your free trial run.
           </h2>
-          <p style={{ fontSize: "0.925rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.7, maxWidth: 400, margin: "0 auto 2rem" }}>
-            Now you know what it can do. Upgrade to keep generating posts every month — unlimited runs, all 4 frameworks, all 3 platforms.
+          <p style={{ fontSize: "0.925rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.7, maxWidth: 400, margin: "0 auto 0.75rem" }}>
+            Now you know what it can do. Upgrade to keep generating posts every month — 27 posts/month, all 4 frameworks, all 3 platforms.
           </p>
-          <a
-            href="mailto:hello@beyondbooked.com?subject=Upgrade my account"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              background: "var(--accent)",
-              color: "#fff",
-              borderRadius: "0.875rem",
-              padding: "0.875rem 2rem",
-              fontSize: "0.95rem",
-              fontWeight: 700,
-              fontFamily: "var(--font-syne)",
-              textDecoration: "none",
-            }}
-          >
-            Get full access →
-          </a>
+          <p style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--gold)", marginBottom: "1.75rem", fontFamily: "var(--font-syne)" }}>
+            $297 / year
+          </p>
+          <UpgradeButton />
           <p style={{ marginTop: "1.25rem" }}>
             <Link href="/dashboard" style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.3)", textDecoration: "underline", textUnderlineOffset: 3 }}>
               Back to dashboard
@@ -139,7 +128,7 @@ export default async function GeneratorPage() {
         savedServiceCategories={serviceCategories}
         city={profile?.city ?? ""}
         stateRegion={profile?.state_region ?? null}
-        isTrial={!profile.is_admin && (profile.trial_runs_used ?? 0) === 0}
+        isTrial={!isPaid && (profile.trial_runs_used ?? 0) === 0}
       />
     </div>
   );

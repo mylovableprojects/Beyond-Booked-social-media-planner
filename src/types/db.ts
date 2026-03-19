@@ -11,6 +11,10 @@ export type ProfileRow = {
   brand_notes: string | null;
   trial_runs_used: number;
   is_admin: boolean;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  subscription_status: "trial" | "active" | "canceled" | "past_due";
+  subscription_expires_at: string | null;
   created_at: string;
   updated_at: string;
 };
