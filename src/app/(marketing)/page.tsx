@@ -34,6 +34,7 @@ export default function MarketingPage() {
           .lp-output-cards-grid { grid-template-columns: 1fr !important; }
           .lp-nav-links { display: none !important; }
           .lp-nav-start { display: flex !important; }
+          .lp-logo-tagline { display: none !important; }
         }
 
         /* ── Responsive: 640px (mobile) ── */
@@ -100,7 +101,7 @@ export default function MarketingPage() {
                 <span style={{ fontFamily: "var(--font-syne)", fontSize: "0.95rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1 }}>
                   Beyond Booked
                 </span>
-                <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.4)", fontWeight: 500, lineHeight: 1 }}>
+                <span className="lp-logo-tagline" style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.4)", fontWeight: 500, lineHeight: 1 }}>
                   The Party Rental Content Engine
                 </span>
               </div>
@@ -116,8 +117,7 @@ export default function MarketingPage() {
               </Link>
             </div>
             {/* Mobile nav — just the start button */}
-            <div className="lp-nav-start" style={{ display: "none", alignItems: "center", gap: "0.75rem" }}>
-              <Link href="/login" className="lp-nav-login" style={{ fontSize: "0.8rem" }}>Log in</Link>
+            <div className="lp-nav-start" style={{ display: "none", alignItems: "center" }}>
               <Link href="/signup" className="lp-btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.8rem" }}>
                 Start free →
               </Link>

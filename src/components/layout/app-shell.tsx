@@ -8,6 +8,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           .app-nav-links { display: none !important; }
           .app-logout-text { display: none !important; }
           .app-logout-icon { display: inline !important; }
+          .app-logo-tagline { display: none !important; }
           .app-main { padding-left: 1rem !important; padding-right: 1rem !important; padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
         }
         @media (max-width: 768px) {
@@ -39,7 +40,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <span style={{ fontFamily: "var(--font-syne)", fontSize: "0.875rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1 }}>
                 Beyond Booked
               </span>
-              <span style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.4)", fontWeight: 500, lineHeight: 1 }}>
+              <span className="app-logo-tagline" style={{ fontSize: "0.58rem", color: "rgba(255,255,255,0.4)", fontWeight: 500, lineHeight: 1 }}>
                 The Party Rental Content Engine
               </span>
             </div>
