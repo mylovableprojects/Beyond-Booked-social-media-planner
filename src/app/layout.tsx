@@ -15,19 +15,19 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Beyond Booked — The Party Rental Content Engine",
+  title: "Beyond Booked — Social Media for Party Rental Businesses",
   description:
     "Generate weeks of high-converting social media posts in minutes — built specifically for party rental businesses.",
   openGraph: {
-    title: "Beyond Booked — The Party Rental Content Engine",
+    title: "Beyond Booked — Social Media for Party Rental Businesses",
     description:
       "Generate weeks of high-converting social media posts in minutes — built specifically for party rental businesses.",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Beyond Booked — The Party Rental Content Engine" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Beyond Booked — Social Media for Party Rental Businesses" }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Beyond Booked — The Party Rental Content Engine",
+    title: "Beyond Booked — Social Media for Party Rental Businesses",
     description:
       "Generate weeks of high-converting social media posts in minutes — built specifically for party rental businesses.",
     images: ["/og-image.png"],
