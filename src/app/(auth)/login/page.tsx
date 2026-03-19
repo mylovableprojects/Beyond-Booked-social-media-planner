@@ -8,7 +8,14 @@ export default async function LoginPage({
   const { registered, error } = await searchParams;
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--navy)" }}>
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
+      <style>{`
+        @media (max-width: 640px) {
+          .login-header { padding-left: 1rem !important; padding-right: 1rem !important; padding-top: 1.25rem !important; padding-bottom: 1.25rem !important; }
+          .login-main { padding-left: 1rem !important; padding-right: 1rem !important; }
+          .login-form { padding: 1.25rem !important; }
+        }
+      `}</style>
+      <header className="login-header mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
         <Link href="/" className="flex items-center gap-2.5" style={{ textDecoration: "none" }}>
           <span
             className="flex h-8 w-8 items-center justify-center rounded-lg font-bold text-white"
@@ -27,7 +34,7 @@ export default async function LoginPage({
         </Link>
       </header>
 
-      <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 pb-20">
+      <main className="login-main mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-6 pb-20">
         <div className="animate-fade-up">
           <h1
             className="text-3xl font-bold text-white"
@@ -61,7 +68,7 @@ export default async function LoginPage({
         <form
           action="/api/auth/login"
           method="post"
-          className="mt-8 space-y-4 rounded-2xl p-7 animate-fade-up animate-fade-up-1"
+          className="login-form mt-8 space-y-4 rounded-2xl p-7 animate-fade-up animate-fade-up-1"
           style={{
             background: "rgba(255,255,255,0.05)",
             border: "1px solid rgba(255,255,255,0.09)",

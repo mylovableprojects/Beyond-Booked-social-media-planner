@@ -251,6 +251,18 @@ export function GeneratorForm({
 
   return (
     <>
+      <style>{`
+        @media (max-width: 640px) {
+          .gen-submit-bar { flex-direction: column !important; align-items: stretch !important; }
+          .gen-submit-bar button[type="submit"] { width: 100% !important; justify-content: center !important; }
+          .gen-submit-count { text-align: center; }
+          .gen-optional-grid { grid-template-columns: 1fr !important; }
+          .gen-card-header { padding: 1rem 1.25rem !important; }
+          .gen-form-body { padding: 1.25rem !important; }
+          .gen-results-header { flex-direction: column !important; align-items: flex-start !important; }
+        }
+      `}</style>
+
       {/* ── Trial limit banner ── */}
       {trialLimitHit && (
         <div
@@ -331,6 +343,7 @@ export function GeneratorForm({
       >
         {/* Card header bar */}
         <div
+          className="gen-card-header"
           style={{
             background: "var(--navy)",
             padding: "1.25rem 2rem",
@@ -362,6 +375,7 @@ export function GeneratorForm({
 
         <form
           onSubmit={(e) => { e.preventDefault(); void onGenerate(); }}
+          className="gen-form-body"
           style={{ padding: "2rem", display: "flex", flexDirection: "column", gap: "2.5rem" }}
         >
           {/* 01 — Platforms */}
@@ -657,7 +671,7 @@ export function GeneratorForm({
           {/* 05 — Optional boosts */}
           <section>
             <SectionLabel number="05">Optional boosts</SectionLabel>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+            <div className="gen-optional-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
               <label style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
                 <span style={{ fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted-fg)" }}>
                   Special promotion
@@ -691,6 +705,7 @@ export function GeneratorForm({
 
           {/* Submit bar */}
           <div
+            className="gen-submit-bar"
             style={{
               display: "flex",
               alignItems: "center",
@@ -701,7 +716,7 @@ export function GeneratorForm({
               flexWrap: "wrap",
             }}
           >
-            <div style={{ fontSize: "0.8rem", color: "var(--muted-fg)", lineHeight: 1.5 }}>
+            <div className="gen-submit-count" style={{ fontSize: "0.8rem", color: "var(--muted-fg)", lineHeight: 1.5 }}>
               {selectedPlatforms.length > 0 ? (
                 <>
                   <span style={{ color: "var(--navy)", fontWeight: 700 }}>{postCount} posts</span>
@@ -759,6 +774,7 @@ export function GeneratorForm({
         <div style={{ marginTop: "3rem" }}>
           {/* Results header */}
           <div
+            className="gen-results-header"
             style={{
               display: "flex",
               alignItems: "center",

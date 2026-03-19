@@ -3,6 +3,18 @@ import Link from "next/link";
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--cream)" }}>
+      <style>{`
+        @media (max-width: 640px) {
+          .app-nav-links { display: none !important; }
+          .app-logout-text { display: none !important; }
+          .app-logout-icon { display: inline !important; }
+          .app-main { padding-left: 1rem !important; padding-right: 1rem !important; padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+        }
+        @media (max-width: 768px) {
+          .app-nav-links a { padding-left: 0.5rem !important; padding-right: 0.5rem !important; font-size: 0.8rem !important; }
+        }
+      `}</style>
+
       {/* Nav */}
       <header
         className="sticky top-0 z-20 border-b"
@@ -11,11 +23,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           borderColor: "rgba(255,255,255,0.08)",
         }}
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5" style={{ gap: "0.5rem" }}>
           <Link
             href="/dashboard"
             className="flex items-center gap-2.5"
-            style={{ textDecoration: "none" }}
+            style={{ textDecoration: "none", flexShrink: 0 }}
           >
             <span
               className="flex h-7 w-7 items-center justify-center rounded-lg font-bold text-white"
@@ -34,7 +46,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <div className="flex items-center gap-1">
-            <nav className="flex items-center gap-1 mr-3">
+            <nav className="app-nav-links flex items-center gap-1 mr-3">
               {[
                 { href: "/generator", label: "Generator" },
                 { href: "/profile", label: "Profile" },
@@ -59,14 +71,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   background: "transparent",
                 }}
               >
-                Log out
+                <span className="app-logout-text">Log out</span>
+                <span className="app-logout-icon" style={{ display: "none" }}>↩</span>
               </button>
             </form>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
+      <main className="app-main mx-auto w-full max-w-6xl flex-1 px-6 py-10">
         {children}
       </main>
     </div>

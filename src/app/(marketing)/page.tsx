@@ -23,6 +23,34 @@ export default function MarketingPage() {
         .lp-float { animation: lp-float 6s ease-in-out infinite; }
         @keyframes lp-badge-pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
         .lp-badge-pulse { animation: lp-badge-pulse 2.5s ease-in-out infinite; }
+
+        /* ── Responsive: 768px (tablet) ── */
+        @media (max-width: 768px) {
+          .lp-hero-grid { grid-template-columns: 1fr !important; }
+          .lp-frameworks-grid { grid-template-columns: 1fr !important; }
+          .lp-featured-inner { grid-template-columns: 1fr !important; }
+          .lp-steps-grid { grid-template-columns: 1fr !important; }
+          .lp-platforms-grid { grid-template-columns: 1fr !important; }
+          .lp-output-cards-grid { grid-template-columns: 1fr !important; }
+          .lp-nav-links { display: none !important; }
+          .lp-nav-start { display: flex !important; }
+        }
+
+        /* ── Responsive: 640px (mobile) ── */
+        @media (max-width: 640px) {
+          .lp-hero-section { padding-bottom: 3rem !important; }
+          .lp-hero-inner { padding: 3rem 1rem 1.5rem !important; }
+          .lp-hero-card { animation: none !important; }
+          .lp-browser-mockup-header { padding: 1rem !important; flex-wrap: wrap; gap: 0.5rem; }
+          .lp-browser-mockup-buttons { display: none !important; }
+          .lp-browser-mockup-content { padding: 1rem !important; }
+          .lp-section-padding { padding: 4rem 1rem !important; }
+          .lp-section-padding-top-only { padding-top: 5rem !important; padding-left: 1rem !important; padding-right: 1rem !important; }
+          .lp-featured-card { padding: 1.25rem !important; }
+          .lp-browser-url { display: none !important; }
+          .lp-cta-section { padding: 5rem 1rem !important; }
+          .lp-footer { padding: 1.5rem 1rem !important; }
+        }
       `}</style>
 
       <div style={{ fontFamily: "var(--font-dm-sans)", overflowX: "hidden" }}>
@@ -78,12 +106,19 @@ export default function MarketingPage() {
               </div>
             </Link>
 
-            {/* Nav links */}
-            <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+            {/* Nav links — hidden on mobile */}
+            <div className="lp-nav-links" style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
               <a href="#how-it-works" className="lp-nav-login">How it works</a>
               <a href="#frameworks" className="lp-nav-login">Frameworks</a>
               <Link href="/login" className="lp-nav-login">Log in</Link>
               <Link href="/signup" className="lp-btn-primary" style={{ padding: "0.5rem 1.25rem", fontSize: "0.82rem" }}>
+                Start free →
+              </Link>
+            </div>
+            {/* Mobile nav — just the start button */}
+            <div className="lp-nav-start" style={{ display: "none", alignItems: "center", gap: "0.75rem" }}>
+              <Link href="/login" className="lp-nav-login" style={{ fontSize: "0.8rem" }}>Log in</Link>
+              <Link href="/signup" className="lp-btn-primary" style={{ padding: "0.5rem 1rem", fontSize: "0.8rem" }}>
                 Start free →
               </Link>
             </div>
@@ -94,6 +129,7 @@ export default function MarketingPage() {
             HERO
         ═══════════════════════════════════════ */}
         <section
+          className="lp-hero-section"
           style={{
             background: "var(--navy)",
             position: "relative",
@@ -121,8 +157,8 @@ export default function MarketingPage() {
             }}
           />
 
-          <div style={{ maxWidth: 1120, margin: "0 auto", padding: "5rem 1.5rem 2rem", position: "relative" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 440px", gap: "3rem", alignItems: "center" }}>
+          <div className="lp-hero-inner" style={{ maxWidth: 1120, margin: "0 auto", padding: "5rem 1.5rem 2rem", position: "relative" }}>
+            <div className="lp-hero-grid" style={{ display: "grid", gridTemplateColumns: "1fr 440px", gap: "3rem", alignItems: "center" }}>
 
               {/* Left: copy */}
               <div>
@@ -216,7 +252,7 @@ export default function MarketingPage() {
               </div>
 
               {/* Right: floating post card mockup */}
-              <div className="animate-fade-up animate-fade-up-2" style={{ position: "relative" }}>
+              <div className="animate-fade-up animate-fade-up-2 lp-hero-card" style={{ position: "relative" }}>
                 {/* Glow behind card */}
                 <div
                   aria-hidden
@@ -354,7 +390,7 @@ export default function MarketingPage() {
         {/* ═══════════════════════════════════════
             THE PROBLEM
         ═══════════════════════════════════════ */}
-        <section style={{ background: "var(--cream)", padding: "6rem 1.5rem" }}>
+        <section className="lp-section-padding" style={{ background: "var(--cream)", padding: "6rem 1.5rem" }}>
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
 
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
@@ -448,6 +484,7 @@ export default function MarketingPage() {
         ═══════════════════════════════════════ */}
         <section
           id="frameworks"
+          className="lp-section-padding"
           style={{
             background: "var(--navy)",
             padding: "6rem 1.5rem",
@@ -493,11 +530,11 @@ export default function MarketingPage() {
             </div>
 
             {/* Framework grid — Beyond Bookings featured */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+            <div className="lp-frameworks-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
 
               {/* Beyond Bookings — full width, featured */}
               <div
-                className="lp-framework-card"
+                className="lp-framework-card lp-featured-card"
                 style={{
                   gridColumn: "1 / -1",
                   background: "linear-gradient(135deg, rgba(255,88,51,0.12) 0%, rgba(255,88,51,0.04) 100%)",
@@ -518,7 +555,7 @@ export default function MarketingPage() {
                     pointerEvents: "none",
                   }}
                 />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "center" }}>
+                <div className="lp-featured-inner" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "center" }}>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.875rem" }}>
                       <span
@@ -654,6 +691,7 @@ export default function MarketingPage() {
         ═══════════════════════════════════════ */}
         <section
           id="how-it-works"
+          className="lp-section-padding"
           style={{ background: "var(--cream)", padding: "6rem 1.5rem" }}
         >
           <div style={{ maxWidth: 1120, margin: "0 auto" }}>
@@ -680,7 +718,7 @@ export default function MarketingPage() {
               </h2>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
+            <div className="lp-steps-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
               {[
                 {
                   n: "01",
@@ -777,6 +815,7 @@ export default function MarketingPage() {
             PLATFORMS
         ═══════════════════════════════════════ */}
         <section
+          className="lp-section-padding"
           style={{
             background: "#fff",
             padding: "5rem 1.5rem",
@@ -799,7 +838,7 @@ export default function MarketingPage() {
               Platform-specific copy for every channel
             </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem" }}>
+            <div className="lp-platforms-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem" }}>
               {[
                 {
                   name: "Facebook",
@@ -982,6 +1021,7 @@ export default function MarketingPage() {
                   </div>
                   {/* URL bar */}
                   <div
+                    className="lp-browser-url"
                     style={{
                       flex: 1,
                       background: "rgba(255,255,255,0.06)",
@@ -1006,6 +1046,7 @@ export default function MarketingPage() {
 
                   {/* Share page header */}
                   <div
+                    className="lp-browser-mockup-header"
                     style={{
                       background: "var(--navy)",
                       padding: "1.5rem 2rem",
@@ -1036,7 +1077,7 @@ export default function MarketingPage() {
                         </p>
                       </div>
                     </div>
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <div className="lp-browser-mockup-buttons" style={{ display: "flex", gap: "0.5rem" }}>
                       <div
                         style={{
                           padding: "0.4rem 0.875rem",
@@ -1062,7 +1103,7 @@ export default function MarketingPage() {
                   </div>
 
                   {/* Posts area */}
-                  <div style={{ padding: "1.5rem 2rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <div className="lp-browser-mockup-content" style={{ padding: "1.5rem 2rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
 
                     {/* Platform group label */}
                     <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "0.25rem" }}>
@@ -1189,6 +1230,7 @@ export default function MarketingPage() {
 
             {/* Output format cards */}
             <div
+              className="lp-output-cards-grid"
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(3, 1fr)",
@@ -1255,6 +1297,7 @@ export default function MarketingPage() {
             FINAL CTA
         ═══════════════════════════════════════ */}
         <section
+          className="lp-cta-section"
           style={{
             background: "var(--navy)",
             padding: "7rem 1.5rem",
@@ -1366,6 +1409,7 @@ export default function MarketingPage() {
             FOOTER
         ═══════════════════════════════════════ */}
         <footer
+          className="lp-footer"
           style={{
             background: "var(--navy)",
             borderTop: "1px solid rgba(255,255,255,0.06)",

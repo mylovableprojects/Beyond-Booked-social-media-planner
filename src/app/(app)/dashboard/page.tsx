@@ -16,11 +16,18 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <style>{`
+        @media (max-width: 640px) {
+          .dash-hero { padding: 1.75rem 1.25rem !important; }
+          .dash-profile-prompt { padding-left: 1.25rem !important; padding-right: 1.25rem !important; padding-top: 1.25rem !important; padding-bottom: 1.25rem !important; }
+          .dash-quick-links { min-width: 0 !important; }
+        }
+      `}</style>
 
       {/* ── Profile setup prompt ── */}
       {!profileComplete && (
         <div
-          className="animate-fade-up relative overflow-hidden rounded-2xl px-8 py-7"
+          className="dash-profile-prompt animate-fade-up relative overflow-hidden rounded-2xl px-8 py-7"
           style={{
             background: "linear-gradient(135deg, rgba(255,88,51,0.08) 0%, rgba(255,88,51,0.03) 100%)",
             border: "1.5px solid rgba(255,88,51,0.25)",
@@ -70,7 +77,7 @@ export default async function DashboardPage() {
 
       {/* ── Hero header ── */}
       <div
-        className="animate-fade-up relative overflow-hidden rounded-3xl px-10 py-12"
+        className="dash-hero animate-fade-up relative overflow-hidden rounded-3xl px-10 py-12"
         style={{
           background: "var(--navy)",
           boxShadow: "0 32px 80px rgba(16,23,44,0.18)",
@@ -264,7 +271,7 @@ export default async function DashboardPage() {
 
         {/* Quick links */}
         <div
-          className="animate-fade-up animate-fade-up-4 flex flex-col gap-3 rounded-2xl px-7 py-6"
+          className="dash-quick-links animate-fade-up animate-fade-up-4 flex flex-col gap-3 rounded-2xl px-7 py-6"
           style={{
             background: "var(--navy)",
             border: "1px solid rgba(255,255,255,0.06)",
