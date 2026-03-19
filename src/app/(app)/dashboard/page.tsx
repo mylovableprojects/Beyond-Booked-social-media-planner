@@ -1,8 +1,72 @@
 import Link from "next/link";
 
-export default function DashboardPage() {
+import { requireUser } from "@/lib/auth/session";
+import { getProfileWithLibraries } from "@/services/repositories/profiles.repository";
+
+export default async function DashboardPage() {
+  const user = await requireUser();
+  const { profile, eventTypes, serviceCategories } = await getProfileWithLibraries(user.id);
+
+  const profileComplete =
+    profile &&
+    profile.city &&
+    profile.city.trim() !== "" &&
+    eventTypes.length > 0 &&
+    serviceCategories.length > 0;
+
   return (
     <div className="space-y-6">
+
+      {/* ── Profile setup prompt ── */}
+      {!profileComplete && (
+        <div
+          className="animate-fade-up relative overflow-hidden rounded-2xl px-8 py-7"
+          style={{
+            background: "linear-gradient(135deg, rgba(255,88,51,0.08) 0%, rgba(255,88,51,0.03) 100%)",
+            border: "1.5px solid rgba(255,88,51,0.25)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "1.25rem", flexWrap: "wrap" }}>
+            <div
+              style={{
+                width: 44, height: 44,
+                borderRadius: "50%",
+                background: "var(--accent)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
+                fontFamily: "var(--font-syne)",
+                fontSize: "1rem", fontWeight: 800, color: "#fff",
+              }}
+            >
+              1
+            </div>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <h2
+                style={{
+                  fontFamily: "var(--font-syne)",
+                  fontSize: "1.1rem",
+                  fontWeight: 800,
+                  color: "var(--navy)",
+                  letterSpacing: "-0.01em",
+                  marginBottom: "0.35rem",
+                }}
+              >
+                Set up your profile before generating
+              </h2>
+              <p style={{ fontSize: "0.875rem", color: "var(--muted-fg)", lineHeight: 1.6, marginBottom: "1.25rem" }}>
+                Add your city, event types, and service categories. This is what makes every post sound like <em>your</em> business — not a template. Takes about 2 minutes.
+              </p>
+              <Link
+                href="/onboarding"
+                className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                style={{ background: "var(--accent)", fontFamily: "var(--font-syne)" }}
+              >
+                Complete your profile →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Hero header ── */}
       <div
@@ -12,7 +76,7 @@ export default function DashboardPage() {
           boxShadow: "0 32px 80px rgba(16,23,44,0.18)",
         }}
       >
-        {/* Large decorative letter */}
+        {/* Large decorative letters */}
         <div
           aria-hidden
           style={{
@@ -28,10 +92,9 @@ export default function DashboardPage() {
             pointerEvents: "none",
           }}
         >
-          PR
+          BB
         </div>
 
-        {/* Gold accent line */}
         <div
           style={{
             width: 40,
@@ -46,7 +109,7 @@ export default function DashboardPage() {
           className="text-xs font-semibold uppercase tracking-widest"
           style={{ color: "var(--gold)", marginBottom: "0.5rem" }}
         >
-          Social Content Generator
+          Beyond Booked
         </p>
 
         <h1
@@ -60,32 +123,46 @@ export default function DashboardPage() {
             maxWidth: "26ch",
           }}
         >
-          Your posts are one click away.
+          {profileComplete ? "Your posts are one click away." : "Welcome — let's get you set up."}
         </h1>
 
         <p
           className="mt-3 text-base"
           style={{ color: "rgba(255,255,255,0.5)", maxWidth: "44ch" }}
         >
-          Platform-specific copy, four writing frameworks, zero AI tell. Built for party rental pros.
+          {profileComplete
+            ? "Platform-specific copy, four writing frameworks, zero AI tell. Built for party rental pros."
+            : "Complete your profile first — it's what makes the content sound like you, not a generic template."}
         </p>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
-          <Link
-            href="/generator"
-            className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
-            style={{ background: "var(--accent)", letterSpacing: "0.01em" }}
-          >
-            Generate content
-            <span aria-hidden style={{ fontSize: "1rem" }}>→</span>
-          </Link>
-          <Link
-            href="/profile"
-            className="inline-flex items-center rounded-xl border px-6 py-3 text-sm font-medium transition-opacity hover:opacity-70"
-            style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.65)" }}
-          >
-            Edit profile
-          </Link>
+          {profileComplete ? (
+            <>
+              <Link
+                href="/generator"
+                className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                style={{ background: "var(--accent)", letterSpacing: "0.01em" }}
+              >
+                Generate content
+                <span aria-hidden style={{ fontSize: "1rem" }}>→</span>
+              </Link>
+              <Link
+                href="/profile"
+                className="inline-flex items-center rounded-xl border px-6 py-3 text-sm font-medium transition-opacity hover:opacity-70"
+                style={{ borderColor: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.65)" }}
+              >
+                Edit profile
+              </Link>
+            </>
+          ) : (
+            <Link
+              href="/onboarding"
+              className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+              style={{ background: "var(--accent)", letterSpacing: "0.01em" }}
+            >
+              Complete your profile →
+            </Link>
+          )}
         </div>
       </div>
 
@@ -106,15 +183,12 @@ export default function DashboardPage() {
               animationDelay: `${0.08 * (i + 1)}s`,
             }}
           >
-            {/* Decorative corner accent */}
             <div
               aria-hidden
               style={{
                 position: "absolute",
-                top: 0,
-                right: 0,
-                width: 60,
-                height: 60,
+                top: 0, right: 0,
+                width: 60, height: 60,
                 background:
                   i === 2
                     ? "radial-gradient(circle at top right, rgba(221,171,44,0.12), transparent 70%)"
@@ -124,10 +198,7 @@ export default function DashboardPage() {
                 borderRadius: "0 1rem 0 0",
               }}
             />
-            <p
-              className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: "var(--muted-fg)" }}
-            >
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--muted-fg)" }}>
               {label}
             </p>
             <p
@@ -143,12 +214,7 @@ export default function DashboardPage() {
             >
               {value}
             </p>
-            <p
-              className="mt-1 text-xs"
-              style={{ color: "var(--muted-fg)" }}
-            >
-              {note}
-            </p>
+            <p className="mt-1 text-xs" style={{ color: "var(--muted-fg)" }}>{note}</p>
           </div>
         ))}
       </div>
@@ -165,18 +231,14 @@ export default function DashboardPage() {
             boxShadow: "0 4px 24px rgba(16,23,44,0.06)",
           }}
         >
-          <p
-            className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: "var(--muted-fg)" }}
-          >
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--muted-fg)" }}>
             Active Platforms
           </p>
-
           <div className="mt-5 space-y-3">
             {[
-              { name: "Facebook",               rule: "40–80 words · no hashtags · max 2 emojis"          },
-              { name: "Instagram",              rule: "100–150 words · hook first · 5–8 hashtags last line" },
-              { name: "Google Business Profile",rule: "75–125 words · no emojis · city + CTA required"    },
+              { name: "Facebook",                rule: "40–80 words · no hashtags · max 2 emojis"           },
+              { name: "Instagram",               rule: "100–150 words · hook first · 5–8 hashtags last line" },
+              { name: "Google Business Profile", rule: "75–125 words · no emojis · city + CTA required"     },
             ].map(({ name, rule }) => (
               <div
                 key={name}
@@ -185,24 +247,15 @@ export default function DashboardPage() {
               >
                 <span
                   style={{
-                    marginTop: 3,
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    background: "var(--accent)",
-                    flexShrink: 0,
+                    marginTop: 3, width: 8, height: 8,
+                    borderRadius: "50%", background: "var(--accent)", flexShrink: 0,
                   }}
                 />
                 <div>
-                  <p
-                    className="text-sm font-semibold"
-                    style={{ color: "var(--navy)", fontFamily: "var(--font-syne)" }}
-                  >
+                  <p className="text-sm font-semibold" style={{ color: "var(--navy)", fontFamily: "var(--font-syne)" }}>
                     {name}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--muted-fg)" }}>
-                    {rule}
-                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--muted-fg)" }}>{rule}</p>
                 </div>
               </div>
             ))}
@@ -219,21 +272,17 @@ export default function DashboardPage() {
             minWidth: 220,
           }}
         >
-          <p
-            className="text-xs font-semibold uppercase tracking-widest"
-            style={{ color: "var(--gold)" }}
-          >
+          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--gold)" }}>
             Quick Actions
           </p>
-
           <div className="mt-2 flex flex-col gap-2">
             {[
-              { href: "/generator", label: "New generation",  primary: true  },
-              { href: "/profile",   label: "Update profile",  primary: false },
-              { href: "/history",   label: "View history",    primary: false },
+              { href: profileComplete ? "/generator" : "/onboarding", label: profileComplete ? "New generation" : "Complete profile", primary: true  },
+              { href: "/profile",   label: "Update profile", primary: false },
+              { href: "/history",   label: "View history",   primary: false },
             ].map(({ href, label, primary }) => (
               <Link
-                key={href}
+                key={label}
                 href={href}
                 className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-opacity hover:opacity-80"
                 style={
@@ -247,10 +296,7 @@ export default function DashboardPage() {
               </Link>
             ))}
           </div>
-
-          {/* Divider */}
           <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "0.5rem 0" }} />
-
           <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)", lineHeight: 1.5 }}>
             Posts are ready to copy-paste or download as CSV after each run.
           </p>

@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 import { GeneratorForm } from "@/components/generator/generator-form";
 import { requireUser } from "@/lib/auth/session";
 import { getProfileWithLibraries } from "@/services/repositories/profiles.repository";
@@ -5,6 +7,11 @@ import { getProfileWithLibraries } from "@/services/repositories/profiles.reposi
 export default async function GeneratorPage() {
   const user = await requireUser();
   const { profile, eventTypes, serviceCategories } = await getProfileWithLibraries(user.id);
+
+  // Must have a complete profile before generating
+  if (!profile || !profile.city || profile.city.trim() === "" || eventTypes.length === 0 || serviceCategories.length === 0) {
+    redirect("/onboarding");
+  }
 
   return (
     <div>
