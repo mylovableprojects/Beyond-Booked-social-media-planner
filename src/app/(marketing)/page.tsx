@@ -1342,7 +1342,7 @@ export default function MarketingPage() {
                   <span style={{ fontFamily: "var(--font-syne)", fontSize: "4rem", fontWeight: 800, color: "var(--navy)", lineHeight: 1 }}>$297</span>
                   <span style={{ fontSize: "1rem", color: "var(--muted-fg)", fontWeight: 500, paddingBottom: "0.5rem" }}>/year</span>
                 </div>
-                <p style={{ fontSize: "0.82rem", color: "var(--muted-fg)" }}>That&apos;s less than $25/month. Less than one booking pays for itself.</p>
+                <p style={{ fontSize: "0.82rem", color: "var(--muted-fg)" }}>That&apos;s less than $25/month. One extra booking a year and it&apos;s paid for.</p>
               </div>
 
               {/* Features list */}
