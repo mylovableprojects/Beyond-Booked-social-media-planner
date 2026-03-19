@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MobileNav } from "./mobile-nav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -6,8 +7,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <style>{`
         @media (max-width: 640px) {
           .app-nav-links { display: none !important; }
-          .app-logout-text { display: none !important; }
-          .app-logout-icon { display: inline !important; }
+          .app-logout-desktop { display: none !important; }
           .app-logo-tagline { display: none !important; }
           .app-main { padding-left: 1rem !important; padding-right: 1rem !important; padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
         }
@@ -47,6 +47,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <div className="flex items-center gap-1">
+            {/* Desktop nav links */}
             <nav className="app-nav-links flex items-center gap-1 mr-3">
               {[
                 { href: "/generator", label: "Generator" },
@@ -62,7 +63,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </Link>
               ))}
             </nav>
-            <form action="/api/auth/logout" method="post">
+
+            {/* Desktop logout */}
+            <form action="/api/auth/logout" method="post" className="app-logout-desktop">
               <button
                 type="submit"
                 className="rounded-lg border px-3.5 py-1.5 text-sm font-medium transition-colors"
@@ -72,10 +75,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   background: "transparent",
                 }}
               >
-                <span className="app-logout-text">Log out</span>
-                <span className="app-logout-icon" style={{ display: "none" }}>↩</span>
+                Log out
               </button>
             </form>
+
+            {/* Mobile hamburger (renders its own slide-out panel) */}
+            <MobileNav />
           </div>
         </div>
       </header>

@@ -18,6 +18,20 @@ export const metadata: Metadata = {
   title: "Beyond Booked — The Party Rental Content Engine",
   description:
     "Generate weeks of high-converting social media posts in minutes — built specifically for party rental businesses.",
+  openGraph: {
+    title: "Beyond Booked — The Party Rental Content Engine",
+    description:
+      "Generate weeks of high-converting social media posts in minutes — built specifically for party rental businesses.",
+    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Beyond Booked — The Party Rental Content Engine" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Beyond Booked — The Party Rental Content Engine",
+    description:
+      "Generate weeks of high-converting social media posts in minutes — built specifically for party rental businesses.",
+    images: ["/og-image.svg"],
+  },
 };
 
 export default function RootLayout({
