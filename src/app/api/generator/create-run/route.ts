@@ -108,8 +108,8 @@ export async function POST(request: Request) {
     ),
   ]);
 
-  // Increment trial counter (best effort — don't block the response)
-  void supabase
+  // Increment trial counter — must await before response or Vercel kills it
+  await supabase
     .from("profiles")
     .update({ trial_runs_used: (profile.trial_runs_used ?? 0) + 1 })
     .eq("id", user.id);
