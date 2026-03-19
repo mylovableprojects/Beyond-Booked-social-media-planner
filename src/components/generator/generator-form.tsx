@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { UpgradeButton } from "@/components/billing/upgrade-button";
 import { z } from "zod";
 
 import { GenerationProgress } from "./generation-progress";
@@ -311,24 +312,7 @@ export function GeneratorForm({
           <p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65, maxWidth: 400, margin: "0 auto 1.75rem" }}>
             Now you know what it can do. Upgrade to keep generating posts every month — unlimited runs, all 4 frameworks, all 3 platforms.
           </p>
-          <a
-            href="mailto:hello@partyrentaltoolkit.com?subject=Upgrade my account"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              background: "var(--accent)",
-              color: "#fff",
-              borderRadius: "0.875rem",
-              padding: "0.75rem 1.75rem",
-              fontSize: "0.9rem",
-              fontWeight: 700,
-              fontFamily: "var(--font-syne)",
-              textDecoration: "none",
-            }}
-          >
-            Get full access →
-          </a>
+          <UpgradeButton />
           <p style={{ marginTop: "1rem", fontSize: "0.75rem", color: "rgba(255,255,255,0.25)" }}>
             Questions? Reply to your welcome email or reach out directly.
           </p>
@@ -357,12 +341,7 @@ export function GeneratorForm({
           <p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65, maxWidth: 420, margin: "0 auto 1.75rem" }}>
             You&apos;ve used {monthlyCapHit.used} of {monthlyCapHit.cap} posts this month. Your limit resets on the 1st — or reach out to upgrade to a higher plan.
           </p>
-          <a
-            href="mailto:hello@beyondbooked.com?subject=Upgrade my account"
-            style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", background: "var(--gold)", color: "#fff", borderRadius: "0.875rem", padding: "0.75rem 1.75rem", fontSize: "0.9rem", fontWeight: 700, fontFamily: "var(--font-syne)", textDecoration: "none" }}
-          >
-            Talk to us about upgrading →
-          </a>
+          <UpgradeButton label="Upgrade to keep generating →" />
         </div>
       )}
 
