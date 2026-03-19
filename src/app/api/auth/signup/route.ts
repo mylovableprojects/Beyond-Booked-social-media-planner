@@ -65,5 +65,5 @@ export async function POST(request: Request) {
     // Silently ignore — webhook failure should never break signup
   });
 
-  return NextResponse.redirect(new URL("/dashboard", request.url));
+  return NextResponse.redirect(new URL("/login?registered=1", request.url));
 }

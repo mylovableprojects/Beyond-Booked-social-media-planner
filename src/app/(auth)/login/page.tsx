@@ -1,6 +1,11 @@
 import Link from "next/link";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ registered?: string; error?: string }>;
+}) {
+  const { registered, error } = await searchParams;
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--navy)" }}>
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
@@ -34,6 +39,24 @@ export default function LoginPage() {
             Log in to your account to continue.
           </p>
         </div>
+
+        {registered && (
+          <div
+            className="animate-fade-up mt-6 rounded-xl px-4 py-3 text-sm"
+            style={{ background: "rgba(52,168,83,0.12)", border: "1px solid rgba(52,168,83,0.3)", color: "#4ade80" }}
+          >
+            Account created — log in to get started.
+          </div>
+        )}
+
+        {error && (
+          <div
+            className="animate-fade-up mt-6 rounded-xl px-4 py-3 text-sm"
+            style={{ background: "rgba(220,38,38,0.12)", border: "1px solid rgba(220,38,38,0.3)", color: "#f87171" }}
+          >
+            {decodeURIComponent(error)}
+          </div>
+        )}
 
         <form
           action="/api/auth/login"
