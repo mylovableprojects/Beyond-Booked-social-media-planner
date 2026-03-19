@@ -161,6 +161,7 @@ export function GeneratorForm({
   const [featuredProduct, setFeaturedProduct] = useState<string>("");
   const [running, setRunning] = useState(false);
   const [trialLimitHit, setTrialLimitHit] = useState(false);
+  const [monthlyCapHit, setMonthlyCapHit] = useState<{ used: number; cap: number } | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -206,9 +207,13 @@ export function GeneratorForm({
         body: JSON.stringify(payload),
       });
 
-      const result = (await res.json()) as { ok?: boolean; posts?: GeneratedPost[]; batchId?: string | null; error?: string };
+      const result = (await res.json()) as { ok?: boolean; posts?: GeneratedPost[]; batchId?: string | null; error?: string; used?: number; cap?: number };
       if (result.error === "trial_limit") {
         setTrialLimitHit(true);
+        return;
+      }
+      if (result.error === "monthly_cap") {
+        setMonthlyCapHit({ used: result.used ?? 27, cap: result.cap ?? 27 });
         return;
       }
       if (!res.ok || !result.ok) {
@@ -330,6 +335,37 @@ export function GeneratorForm({
         </div>
       )}
 
+      {/* ── Monthly cap banner ── */}
+      {monthlyCapHit && (
+        <div
+          className="animate-fade-up"
+          style={{
+            background: "var(--navy)",
+            border: "1.5px solid rgba(221,171,44,0.3)",
+            borderRadius: "1.5rem",
+            padding: "2.5rem",
+            marginBottom: "1.5rem",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(221,171,44,0.12)", border: "1.5px solid rgba(221,171,44,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem", fontSize: "1.5rem" }}>
+            📅
+          </div>
+          <h3 style={{ fontFamily: "var(--font-syne)", fontSize: "1.25rem", fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", marginBottom: "0.625rem" }}>
+            You&apos;ve hit your monthly limit.
+          </h3>
+          <p style={{ fontSize: "0.9rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.65, maxWidth: 420, margin: "0 auto 1.75rem" }}>
+            You&apos;ve used {monthlyCapHit.used} of {monthlyCapHit.cap} posts this month. Your limit resets on the 1st — or reach out to upgrade to a higher plan.
+          </p>
+          <a
+            href="mailto:hello@beyondbooked.com?subject=Upgrade my account"
+            style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", background: "var(--gold)", color: "#fff", borderRadius: "0.875rem", padding: "0.75rem 1.75rem", fontSize: "0.9rem", fontWeight: 700, fontFamily: "var(--font-syne)", textDecoration: "none" }}
+          >
+            Talk to us about upgrading →
+          </a>
+        </div>
+      )}
+
       {/* ── Main form card ── */}
       <div
         className="animate-fade-up"
@@ -339,8 +375,8 @@ export function GeneratorForm({
           borderRadius: "1.5rem",
           boxShadow: "0 8px 40px rgba(16,23,44,0.08)",
           overflow: "hidden",
-          opacity: trialLimitHit ? 0.4 : 1,
-          pointerEvents: trialLimitHit ? "none" : "auto",
+          opacity: trialLimitHit || monthlyCapHit ? 0.4 : 1,
+          pointerEvents: trialLimitHit || monthlyCapHit ? "none" : "auto",
         }}
       >
         {/* Card header bar */}

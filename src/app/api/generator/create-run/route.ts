@@ -41,8 +41,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Profile not found." }, { status: 404 });
   }
 
-  // Trial users can only generate 3 posts per platform max
   const isTrial = !profile.is_admin && (profile.trial_runs_used ?? 0) === 0;
+
+  // Trial users can only generate 3 posts per platform max
   if (isTrial && parsed.data.postCount > 3) {
     return NextResponse.json(
       { ok: false, error: "Trial accounts are limited to 3 posts per platform." },
@@ -56,6 +57,29 @@ export async function POST(request: Request) {
       { ok: false, error: "trial_limit" },
       { status: 402 },
     );
+  }
+
+  // Monthly cap: 27 posts per calendar month (admins exempt)
+  const MONTHLY_POST_CAP = 27;
+  if (!profile.is_admin) {
+    const { data: monthRuns } = await supabase
+      .from("generation_runs")
+      .select("post_count")
+      .eq("profile_id", user.id)
+      .eq("month", parsed.data.month)
+      .eq("year", parsed.data.year)
+      .eq("status", "completed");
+
+    const usedThisMonth = (monthRuns ?? []).reduce((sum, r) => sum + (r.post_count ?? 0), 0);
+    const requestedTotal = parsed.data.postCount * parsed.data.platforms.length;
+
+    if (usedThisMonth + requestedTotal > MONTHLY_POST_CAP) {
+      const remaining = Math.max(0, MONTHLY_POST_CAP - usedThisMonth);
+      return NextResponse.json(
+        { ok: false, error: "monthly_cap", remaining, used: usedThisMonth, cap: MONTHLY_POST_CAP },
+        { status: 402 },
+      );
+    }
   }
 
   // Generate posts first
