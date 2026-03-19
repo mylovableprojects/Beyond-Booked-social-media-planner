@@ -169,11 +169,17 @@ export function BusinessProfileForm({
 
           {/* Brand story */}
           <label style={{ display: "block" }}>
-            <FieldLabel>About / brand story</FieldLabel>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+              <FieldLabel>About / brand story</FieldLabel>
+              <span style={{ fontSize: "0.65rem", color: brandNotes.length > 1800 ? "#dc2626" : "var(--muted-fg)" }}>
+                {brandNotes.length} / 2000
+              </span>
+            </div>
             <textarea
               name="brandNotes"
               value={brandNotes}
               onChange={(e) => setBrandNotes(e.target.value)}
+              maxLength={2000}
               style={{
                 ...inputStyle,
                 minHeight: 100,
