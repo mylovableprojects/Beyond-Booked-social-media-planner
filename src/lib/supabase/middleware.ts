@@ -45,14 +45,9 @@ export async function updateSession(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
 
     const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
-    const isAuthPage = authPaths.some((path) => pathname.startsWith(path));
 
     if (!user && isProtected) {
       return NextResponse.redirect(new URL("/login", request.url));
-    }
-
-    if (user && isAuthPage) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   } catch {
     // Never crash the middleware — just pass through
