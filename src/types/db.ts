@@ -10,6 +10,7 @@ export type ProfileRow = {
   timezone: string;
   brand_notes: string | null;
   trial_runs_used: number;
+  is_admin: boolean;
   created_at: string;
   updated_at: string;
 };

@@ -41,8 +41,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Profile not found." }, { status: 404 });
   }
 
-  // Trial gate — free accounts get one run
-  if ((profile.trial_runs_used ?? 0) >= 1) {
+  // Trial gate — free accounts get one run (admins are exempt)
+  if (!profile.is_admin && (profile.trial_runs_used ?? 0) >= 1) {
     return NextResponse.json(
       { ok: false, error: "trial_limit" },
       { status: 402 },
@@ -108,11 +108,13 @@ export async function POST(request: Request) {
     ),
   ]);
 
-  // Increment trial counter — must await before response or Vercel kills it
-  await supabase
-    .from("profiles")
-    .update({ trial_runs_used: (profile.trial_runs_used ?? 0) + 1 })
-    .eq("id", user.id);
+  // Increment trial counter (skip for admins)
+  if (!profile.is_admin) {
+    await supabase
+      .from("profiles")
+      .update({ trial_runs_used: (profile.trial_runs_used ?? 0) + 1 })
+      .eq("id", user.id);
+  }
 
   return NextResponse.json({ ok: true, posts, batchId });
 }

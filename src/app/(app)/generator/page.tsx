@@ -14,8 +14,8 @@ export default async function GeneratorPage() {
     redirect("/onboarding");
   }
 
-  // Trial used — show lockout immediately, no form
-  if ((profile.trial_runs_used ?? 0) >= 1) {
+  // Trial used — show lockout immediately, no form (admins exempt)
+  if (!profile.is_admin && (profile.trial_runs_used ?? 0) >= 1) {
     return (
       <div>
         <div className="animate-fade-up mb-8">
