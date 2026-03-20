@@ -6,6 +6,7 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const next = String(formData.get("next") ?? "").trim();
 
   if (!email || !password) {
     return NextResponse.redirect(new URL("/login?error=missing_fields", request.url));
@@ -21,5 +22,6 @@ export async function POST(request: Request) {
     return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error.message)}`, request.url));
   }
 
-  return NextResponse.redirect(new URL("/dashboard", request.url));
+  const redirectTo = next && next.startsWith("/") ? next : "/dashboard";
+  return NextResponse.redirect(new URL(redirectTo, request.url));
 }

@@ -3,9 +3,9 @@ import Link from "next/link";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ registered?: string; error?: string }>;
+  searchParams: Promise<{ registered?: string; error?: string; next?: string }>;
 }) {
-  const { registered, error } = await searchParams;
+  const { registered, error, next } = await searchParams;
   return (
     <div className="flex min-h-screen flex-col" style={{ background: "var(--navy)" }}>
       <style>{`
@@ -108,6 +108,8 @@ export default async function LoginPage({
               placeholder="••••••••"
             />
           </label>
+
+          {next && <input type="hidden" name="next" value={next} />}
 
           <button
             type="submit"

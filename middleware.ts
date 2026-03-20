@@ -14,6 +14,7 @@ export const config = {
     "/generator/:path*",
     "/results/:path*",
     "/history/:path*",
+    "/admin/:path*",
     "/login",
     "/signup",
   ],
