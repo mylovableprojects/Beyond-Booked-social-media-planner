@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="glow1" cx="75%" cy="35%" r="50%">
+      <stop offset="0%" stop-color="#ff5833" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#10172c" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="15%" cy="80%" r="40%">
+      <stop offset="0%" stop-color="#ddab2c" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#10172c" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#10172c"/>
+
+  <!-- Glow overlays -->
+  <rect width="1200" height="630" fill="url(#glow1)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+
+  <!-- Subtle grid -->
+  <g stroke="rgba(255,255,255,0.025)" stroke-width="1">
+    <line x1="0" y1="90" x2="1200" y2="90"/>
+    <line x1="0" y1="180" x2="1200" y2="180"/>
+    <line x1="0" y1="270" x2="1200" y2="270"/>
+    <line x1="0" y1="360" x2="1200" y2="360"/>
+    <line x1="0" y1="450" x2="1200" y2="450"/>
+    <line x1="0" y1="540" x2="1200" y2="540"/>
+    <line x1="150" y1="0" x2="150" y2="630"/>
+    <line x1="300" y1="0" x2="300" y2="630"/>
+    <line x1="450" y1="0" x2="450" y2="630"/>
+    <line x1="600" y1="0" x2="600" y2="630"/>
+    <line x1="750" y1="0" x2="750" y2="630"/>
+    <line x1="900" y1="0" x2="900" y2="630"/>
+    <line x1="1050" y1="0" x2="1050" y2="630"/>
+  </g>
+
+  <!-- BB Badge -->
+  <rect x="72" y="72" width="64" height="64" rx="14" fill="#ff5833"/>
+  <text x="104" y="116" font-family="Arial, sans-serif" font-size="22" font-weight="900" fill="white" text-anchor="middle" letter-spacing="1">BB</text>
+
+  <!-- Brand name -->
+  <text x="152" y="104" font-family="Arial, sans-serif" font-size="28" font-weight="800" fill="white" letter-spacing="-0.5">Beyond Booked</text>
+  <text x="152" y="126" font-family="Arial, sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.4)" letter-spacing="0.5">THE PARTY RENTAL CONTENT ENGINE</text>
+
+  <!-- Gold accent line -->
+  <rect x="72" y="190" width="56" height="4" rx="2" fill="#ddab2c"/>
+
+  <!-- Main headline -->
+  <text x="72" y="270" font-family="Arial, sans-serif" font-size="62" font-weight="900" fill="white" letter-spacing="-2">Stop posting</text>
+  <text x="72" y="345" font-family="Arial, sans-serif" font-size="62" font-weight="900" fill="white" letter-spacing="-2">"Book now."</text>
+  <text x="72" y="420" font-family="Arial, sans-serif" font-size="62" font-weight="900" fill="#ff5833" letter-spacing="-2">Start getting booked.</text>
+
+  <!-- Strikethrough on "Book now." -->
+  <rect x="72" y="322" width="370" height="5" rx="2" fill="#ff5833" opacity="0.7" transform="rotate(-1.5, 72, 322)"/>
+
+  <!-- Subtext -->
+  <text x="72" y="490" font-family="Arial, sans-serif" font-size="22" font-weight="400" fill="rgba(255,255,255,0.55)">Social media content built exclusively for</text>
+  <text x="72" y="520" font-family="Arial, sans-serif" font-size="22" font-weight="400" fill="rgba(255,255,255,0.55)">party rental businesses. 4 frameworks. 3 platforms. ~10 seconds.</text>
+
+  <!-- Right side — floating post card -->
+  <rect x="730" y="80" width="400" height="470" rx="20" fill="white" opacity="0.97"/>
+
+  <!-- Card top stripe -->
+  <rect x="730" y="80" width="400" height="5" rx="2" fill="#1877f2"/>
+
+  <!-- Card header -->
+  <circle cx="766" cy="126" r="18" fill="#ff5833"/>
+  <text x="766" y="132" font-family="Arial, sans-serif" font-size="11" font-weight="800" fill="white" text-anchor="middle">WC</text>
+  <text x="794" y="120" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#10172c">Windy City Jump Rentals</text>
+  <circle cx="796" cy="133" r="4" fill="#1877f2"/>
+  <text x="806" y="137" font-family="Arial, sans-serif" font-size="11" fill="#5c6470">Facebook · 2h</text>
+
+  <!-- Beyond Bookings badge -->
+  <rect x="1048" y="108" width="62" height="20" rx="10" fill="rgba(255,88,51,0.1)" stroke="rgba(255,88,51,0.3)" stroke-width="1"/>
+  <text x="1079" y="122" font-family="Arial, sans-serif" font-size="8.5" font-weight="800" fill="#ff5833" text-anchor="middle" letter-spacing="0.3">BEYOND</text>
+
+  <!-- Divider -->
+  <line x1="730" y1="155" x2="1130" y2="155" stroke="#f0ece5" stroke-width="1"/>
+
+  <!-- Post content -->
+  <text x="752" y="188" font-family="Arial, sans-serif" font-size="14.5" fill="#10172c">The kids didn't want to leave, and the</text>
+  <text x="752" y="210" font-family="Arial, sans-serif" font-size="14.5" fill="#10172c">adults kept sneaking back to the photo</text>
+  <text x="752" y="232" font-family="Arial, sans-serif" font-size="14.5" fill="#10172c">booth for one more shot.</text>
+
+  <text x="752" y="268" font-family="Arial, sans-serif" font-size="14.5" fill="#10172c">That's the kind of grad party people talk</text>
+  <text x="752" y="290" font-family="Arial, sans-serif" font-size="14.5" fill="#10172c">about for years. 🎓</text>
+
+  <text x="752" y="326" font-family="Arial, sans-serif" font-size="14.5" fill="#10172c">We help Windsor-Essex families make</text>
+  <text x="752" y="348" font-family="Arial, sans-serif" font-size="14.5" fill="#10172c">that happen. Tap for a quick quote.</text>
+
+  <!-- Engagement bar -->
+  <line x1="752" y1="378" x2="1110" y2="378" stroke="#f0ece5" stroke-width="1"/>
+  <text x="752" y="400" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#5c6470">👍 47</text>
+  <text x="820" y="400" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#5c6470">💬 12</text>
+  <text x="880" y="400" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#5c6470">↗ Share</text>
+
+  <!-- Framework pills at bottom of card -->
+  <rect x="752" y="425" width="120" height="24" rx="12" fill="rgba(255,88,51,0.08)" stroke="rgba(255,88,51,0.2)" stroke-width="1"/>
+  <text x="812" y="441" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#ff5833" text-anchor="middle" letter-spacing="0.3">BEYOND BOOKINGS</text>
+
+  <rect x="884" y="425" width="90" height="24" rx="12" fill="rgba(221,171,44,0.08)" stroke="rgba(221,171,44,0.2)" stroke-width="1"/>
+  <text x="929" y="441" font-family="Arial, sans-serif" font-size="10" font-weight="700" fill="#ddab2c" text-anchor="middle" letter-spacing="0.3">STORYBRAND</text>
+
+  <!-- Label below card -->
+  <text x="930" y="572" font-family="Arial, sans-serif" font-size="12" fill="rgba(255,255,255,0.25)" text-anchor="middle" font-style="italic">Real output from the Beyond Bookings framework</text>
+
+  <!-- Bottom left URL -->
+  <text x="72" y="590" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="rgba(255,255,255,0.25)" letter-spacing="0.3">beyondbooked.com</text>
+</svg>
