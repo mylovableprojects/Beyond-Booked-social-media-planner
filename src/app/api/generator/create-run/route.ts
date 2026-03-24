@@ -41,6 +41,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Profile not found." }, { status: 404 });
   }
 
+  if (profile.account_role === "worker") {
+    return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+  }
+
   const isPaid = profile.is_admin || profile.subscription_status === "active";
   const isTrial = !isPaid && (profile.trial_runs_used ?? 0) === 0;
 

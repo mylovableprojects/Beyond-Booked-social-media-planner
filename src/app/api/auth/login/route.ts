@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
   }
 
   const redirectTo = next && next.startsWith("/") ? next : "/dashboard";
-  const redirectResponse = NextResponse.redirect(new URL(redirectTo, request.url));
 
-  // Build the client so cookies are written directly onto the redirect response,
-  // not via next/headers — otherwise the session cookies are dropped on redirect.
+  type PendingCookie = { name: string; value: string; options?: Parameters<NextResponse["cookies"]["set"]>[2] };
+  const pendingCookies: PendingCookie[] = [];
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "",
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           for (const cookie of cookiesToSet) {
-            redirectResponse.cookies.set(cookie.name, cookie.value, cookie.options);
+            pendingCookies.push({ name: cookie.name, value: cookie.value, options: cookie.options });
           }
         },
       },
@@ -39,5 +39,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error.message)}`, request.url));
   }
 
+  let path = redirectTo;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const { data: prof } = await supabase.from("profiles").select("account_role").eq("id", user.id).maybeSingle();
+    if (prof?.account_role === "worker") {
+      path = "/dashboard/field-upload";
+    }
+  }
+
+  const redirectResponse = NextResponse.redirect(new URL(path, request.url));
+  for (const c of pendingCookies) {
+    redirectResponse.cookies.set(c.name, c.value, c.options);
+  }
   return redirectResponse;
 }

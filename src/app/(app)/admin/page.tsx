@@ -1,9 +1,22 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { AdminFieldCaptureUrlCard } from "@/components/admin/admin-field-capture-url-card";
+import { AdminUsersTable } from "@/components/admin/admin-users-table";
 import { requireUser } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
-import { AdminUsersTable } from "@/components/admin/admin-users-table";
 import type { ProfileRow } from "@/types/db";
+
+async function requestSiteOrigin(): Promise<string | null> {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  if (!host) return null;
+  const rawProto = h.get("x-forwarded-proto");
+  const proto =
+    rawProto?.split(",")[0]?.trim() ||
+    (host.includes("localhost") || host.startsWith("127.") ? "http" : "https");
+  return `${proto}://${host}`;
+}
 
 export default async function AdminPage() {
   const user = await requireUser();
@@ -12,16 +25,18 @@ export default async function AdminPage() {
   const admin = createSupabaseAdminClient();
   const { data: profile } = await admin
     .from("profiles")
-    .select("is_admin")
+    .select("is_admin, is_support_admin")
     .eq("id", user.id)
-    .maybeSingle<Pick<ProfileRow, "is_admin">>();
+    .maybeSingle<Pick<ProfileRow, "is_admin" | "is_support_admin">>();
 
-  if (!profile?.is_admin) redirect("/dashboard");
+  if (!profile?.is_admin && !profile?.is_support_admin) redirect("/dashboard");
 
   // Fetch all profiles
   const { data: profiles } = await admin
     .from("profiles")
-    .select("id, first_name, last_name, business_name, city, state_region, trial_runs_used, is_admin, created_at")
+    .select(
+      "id, first_name, last_name, business_name, city, state_region, trial_runs_used, is_admin, is_support_admin, account_role, created_at",
+    )
     .order("created_at", { ascending: false })
     .returns<ProfileRow[]>();
 
@@ -37,6 +52,9 @@ export default async function AdminPage() {
     email: emailMap[p.id] ?? "",
   }));
 
+  const origin = await requestSiteOrigin();
+  const fieldCaptureUrl = origin ? `${origin}/dashboard/field-upload` : "/dashboard/field-upload";
+
   return (
     <div>
       <div className="animate-fade-up mb-8">
@@ -51,10 +69,13 @@ export default async function AdminPage() {
         </h1>
         <p style={{ marginTop: "0.4rem", fontSize: "0.875rem", color: "var(--muted-fg)" }}>
           {rows.length} account{rows.length !== 1 ? "s" : ""} total
+          {!profile.is_admin && profile.is_support_admin ? " — view only (no delete, impersonation, or promotions)" : ""}
         </p>
       </div>
 
-      <AdminUsersTable users={rows} currentUserId={user.id} />
+      <AdminFieldCaptureUrlCard fullUrl={fieldCaptureUrl} />
+
+      <AdminUsersTable users={rows} currentUserId={user.id} canFullAdmin={profile.is_admin} />
     </div>
   );
 }

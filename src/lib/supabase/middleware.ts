@@ -1,6 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { workerMayAccessApiPath, workerMayAccessAppPath } from "@/lib/auth/worker-access";
+
 const protectedPaths = [
   "/dashboard",
   "/onboarding",
@@ -51,6 +53,26 @@ export async function updateSession(request: NextRequest) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("next", pathname);
       return NextResponse.redirect(loginUrl);
+    }
+
+    if (user) {
+      const { data: profileRow, error: profileError } = await supabase
+        .from("profiles")
+        .select("account_role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const isWorker = !profileError && profileRow?.account_role === "worker";
+
+      if (isWorker) {
+        if (pathname.startsWith("/api/")) {
+          if (!workerMayAccessApiPath(pathname)) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+          }
+        } else if (isProtected && !workerMayAccessAppPath(pathname)) {
+          return NextResponse.redirect(new URL("/dashboard/field-upload", request.url));
+        }
+      }
     }
   } catch {
     // Never crash the middleware — just pass through

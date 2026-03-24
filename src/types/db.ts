@@ -10,6 +10,12 @@ export type ProfileRow = {
   timezone: string;
   brand_notes: string | null;
   trial_runs_used: number;
+  /** owner = paying business account; worker = field capture only (employer_profile_id set). */
+  account_role: "owner" | "worker";
+  /** Read-only admin UI: user list without destructive actions (super admin sets this). */
+  is_support_admin: boolean;
+  /** Business owner's profile id (auth user id); only for account_role = worker. */
+  employer_profile_id: string | null;
   is_admin: boolean;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;

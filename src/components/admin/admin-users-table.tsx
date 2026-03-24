@@ -11,15 +11,26 @@ type UserRow = {
   email: string;
   trial_runs_used: number;
   is_admin: boolean;
+  is_support_admin: boolean;
+  account_role: "owner" | "worker";
   created_at: string;
 };
 
 type Props = {
   users: UserRow[];
   currentUserId: string;
+  /** Super admins can delete, impersonate, reset trials, promote admins/support. Support admins are read-only. */
+  canFullAdmin: boolean;
 };
 
-export function AdminUsersTable({ users: initial, currentUserId }: Props) {
+function roleLabel(u: UserRow): string {
+  if (u.is_admin) return "Super admin";
+  if (u.is_support_admin) return "Support";
+  if (u.account_role === "worker") return "Worker";
+  return "Owner";
+}
+
+export function AdminUsersTable({ users: initial, currentUserId, canFullAdmin }: Props) {
   const [users, setUsers] = useState(initial);
   const [loading, setLoading] = useState<Record<string, string>>({}); // id → action
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -86,6 +97,22 @@ export function AdminUsersTable({ users: initial, currentUserId }: Props) {
     } else {
       const { error } = await res.json();
       alert(error ?? "Reset failed");
+    }
+    setLoading((p) => { const n = { ...p }; delete n[id]; return n; });
+  }
+
+  async function toggleSupport(id: string, current: boolean) {
+    setLoading((p) => ({ ...p, [id]: "support" }));
+    const res = await fetch("/api/admin/toggle-support", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: id, isSupportAdmin: !current }),
+    });
+    if (res.ok) {
+      setUsers((p) => p.map((u) => (u.id === id ? { ...u, is_support_admin: !current } : u)));
+    } else {
+      const { error } = await res.json();
+      alert(error ?? "Update failed");
     }
     setLoading((p) => { const n = { ...p }; delete n[id]; return n; });
   }
@@ -185,7 +212,7 @@ export function AdminUsersTable({ users: initial, currentUserId }: Props) {
               <th>Email</th>
               <th>City</th>
               <th>Trial runs</th>
-              <th>Admin</th>
+              <th>Role</th>
               <th>Joined</th>
               <th>Actions</th>
             </tr>
@@ -218,64 +245,83 @@ export function AdminUsersTable({ users: initial, currentUserId }: Props) {
                   <span
                     className="admin-badge"
                     style={{
-                      background: u.is_admin ? "rgba(221,171,44,0.12)" : "rgba(16,23,44,0.04)",
-                      color: u.is_admin ? "#b08a1a" : "var(--muted-fg)",
+                      background:
+                        u.is_admin
+                          ? "rgba(221,171,44,0.12)"
+                          : u.is_support_admin
+                            ? "rgba(59,130,246,0.1)"
+                            : u.account_role === "worker"
+                              ? "rgba(16,23,44,0.06)"
+                              : "rgba(16,23,44,0.04)",
+                      color:
+                        u.is_admin ? "#b08a1a" : u.is_support_admin ? "#2563eb" : "var(--muted-fg)",
                     }}
                   >
-                    {u.is_admin ? "Admin" : "User"}
+                    {roleLabel(u)}
                   </span>
                 </td>
                 <td style={{ color: "var(--muted-fg)", whiteSpace: "nowrap" }}>
                   {new Date(u.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </td>
                 <td>
-                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "nowrap" }}>
-                    {/* Login as */}
-                    {u.id !== currentUserId && (
-                      <button
-                        className="admin-btn admin-btn-neutral"
-                        disabled={!!loading[u.id]}
-                        onClick={() => impersonate(u.id)}
-                        title="Login as this user"
-                      >
-                        {loading[u.id] === "impersonate" ? "…" : "Login as"}
-                      </button>
-                    )}
-                    {/* Reset trial */}
-                    {!u.is_admin && u.trial_runs_used > 0 && (
-                      <button
-                        className="admin-btn admin-btn-neutral"
-                        disabled={!!loading[u.id]}
-                        onClick={() => resetTrial(u.id)}
-                        title="Reset trial to 0"
-                      >
-                        {loading[u.id] === "reset" ? "…" : "↺ Reset"}
-                      </button>
-                    )}
-                    {/* Toggle admin */}
-                    {u.id !== currentUserId && (
-                      <button
-                        className="admin-btn admin-btn-gold"
-                        disabled={!!loading[u.id]}
-                        onClick={() => toggleAdmin(u.id, u.is_admin)}
-                        title={u.is_admin ? "Remove admin" : "Make admin"}
-                      >
-                        {loading[u.id] === "admin" ? "…" : u.is_admin ? "Revoke admin" : "Make admin"}
-                      </button>
-                    )}
-                    {/* Delete */}
-                    {u.id !== currentUserId && (
-                      <button
-                        className="admin-btn admin-btn-danger"
-                        disabled={!!loading[u.id]}
-                        onClick={() => setConfirmDelete(u.id)}
-                        title="Delete user"
-                      >
-                        {loading[u.id] === "delete" ? "…" : "Delete"}
-                      </button>
-                    )}
+                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", alignItems: "center" }}>
                     {u.id === currentUserId && (
                       <span style={{ fontSize: "0.7rem", color: "var(--muted-fg)", fontStyle: "italic" }}>You</span>
+                    )}
+                    {!canFullAdmin && (
+                      <span style={{ fontSize: "0.7rem", color: "var(--muted-fg)", fontStyle: "italic" }}>View only</span>
+                    )}
+                    {canFullAdmin && u.id !== currentUserId && (
+                      <>
+                        <button
+                          className="admin-btn admin-btn-neutral"
+                          disabled={!!loading[u.id]}
+                          onClick={() => impersonate(u.id)}
+                          title="Login as this user"
+                        >
+                          {loading[u.id] === "impersonate" ? "…" : "Login as"}
+                        </button>
+                        {!u.is_admin && u.trial_runs_used > 0 && (
+                          <button
+                            className="admin-btn admin-btn-neutral"
+                            disabled={!!loading[u.id]}
+                            onClick={() => resetTrial(u.id)}
+                            title="Reset trial to 0"
+                          >
+                            {loading[u.id] === "reset" ? "…" : "↺ Reset"}
+                          </button>
+                        )}
+                        <button
+                          className="admin-btn admin-btn-gold"
+                          disabled={!!loading[u.id]}
+                          onClick={() => toggleAdmin(u.id, u.is_admin)}
+                          title={u.is_admin ? "Remove admin" : "Make admin"}
+                        >
+                          {loading[u.id] === "admin" ? "…" : u.is_admin ? "Revoke admin" : "Make admin"}
+                        </button>
+                        {!u.is_admin && u.account_role === "owner" && (
+                          <button
+                            className="admin-btn admin-btn-neutral"
+                            disabled={!!loading[u.id]}
+                            onClick={() => toggleSupport(u.id, u.is_support_admin)}
+                            title={u.is_support_admin ? "Remove support access" : "Grant read-only admin"}
+                          >
+                            {loading[u.id] === "support"
+                              ? "…"
+                              : u.is_support_admin
+                                ? "Revoke support"
+                                : "Make support"}
+                          </button>
+                        )}
+                        <button
+                          className="admin-btn admin-btn-danger"
+                          disabled={!!loading[u.id]}
+                          onClick={() => setConfirmDelete(u.id)}
+                          title="Delete user"
+                        >
+                          {loading[u.id] === "delete" ? "…" : "Delete"}
+                        </button>
+                      </>
                     )}
                   </div>
                 </td>

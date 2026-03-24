@@ -1,4 +1,6 @@
 import { BusinessProfileForm } from "@/components/profile/business-profile-form";
+import { OwnerWorkersPanel } from "@/components/profile/owner-workers-panel";
+import { ownerCanUsePaidFeatures } from "@/lib/auth/subscription-access";
 import { requireUser } from "@/lib/auth/session";
 import { getProfileWithLibraries } from "@/services/repositories/profiles.repository";
 import { ToastFeedback } from "@/components/layout/toast-feedback";
@@ -21,6 +23,11 @@ export default async function ProfilePage({
   if (savedValue === "1") {
     toast = { variant: "success", message: "Profile saved successfully." };
   }
+  const showTeamSection =
+    profile &&
+    profile.account_role !== "worker" &&
+    ownerCanUsePaidFeatures(profile);
+
   if (errorValue) {
     const message =
       errorValue === "invalid_profile"
@@ -62,6 +69,8 @@ export default async function ProfilePage({
         eventTypes={eventTypes}
         serviceCategories={serviceCategories}
       />
+
+      {showTeamSection && <OwnerWorkersPanel />}
     </div>
   );
 }

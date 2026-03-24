@@ -14,7 +14,12 @@ export default async function DashboardPage() {
     eventTypes.length > 0 &&
     serviceCategories.length > 0;
 
-  const showFieldCrewTools = Boolean(profile && !profile.is_admin);
+  const showFieldCrewTools = Boolean(
+    profile &&
+      profile.account_role !== "worker" &&
+      !profile.is_admin &&
+      !profile.is_support_admin,
+  );
 
   return (
     <div className="space-y-6">

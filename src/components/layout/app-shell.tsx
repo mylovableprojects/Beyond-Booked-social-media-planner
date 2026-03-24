@@ -1,7 +1,21 @@
 import Link from "next/link";
 import { MobileNav } from "./mobile-nav";
 
-export function AppShell({ children, isAdmin = false }: { children: React.ReactNode; isAdmin?: boolean }) {
+export function AppShell({
+  children,
+  isAdmin = false,
+  isSupportAdmin = false,
+  isWorker = false,
+}: {
+  children: React.ReactNode;
+  isAdmin?: boolean;
+  /** Read-only admin: user list without destructive actions */
+  isSupportAdmin?: boolean;
+  /** Field-only login created by a business owner */
+  isWorker?: boolean;
+}) {
+  const showFieldCaptureLink = !isAdmin && !isSupportAdmin && !isWorker;
+  const showAdminLink = isAdmin || isSupportAdmin;
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--cream)" }}>
       <style>{`
@@ -26,7 +40,7 @@ export function AppShell({ children, isAdmin = false }: { children: React.ReactN
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5" style={{ gap: "0.5rem" }}>
           <Link
-            href="/dashboard"
+            href={isWorker ? "/dashboard/field-upload" : "/dashboard"}
             className="flex items-center gap-2.5"
             style={{ textDecoration: "none", flexShrink: 0 }}
           >
@@ -49,14 +63,17 @@ export function AppShell({ children, isAdmin = false }: { children: React.ReactN
           <div className="flex items-center gap-1">
             {/* Desktop nav links */}
             <nav className="app-nav-links flex items-center gap-1 mr-3">
-              {[
-                { href: "/generator", label: "Generator" },
-                // Field capture: non-admins only (profiles.is_admin — no separate worker role column yet)
-                ...(!isAdmin ? [{ href: "/dashboard/field-upload", label: "📸 Post From The Field" }] : []),
-                { href: "/profile", label: "Profile" },
-                { href: "/history", label: "History" },
-                ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
-              ].map(({ href, label }) => (
+              {(
+                isWorker
+                  ? [{ href: "/dashboard/field-upload", label: "📸 Field capture" }]
+                  : [
+                      { href: "/generator", label: "Generator" },
+                      ...(showFieldCaptureLink ? [{ href: "/dashboard/field-upload", label: "📸 Post From The Field" }] : []),
+                      { href: "/profile", label: "Profile" },
+                      { href: "/history", label: "History" },
+                      ...(showAdminLink ? [{ href: "/admin", label: "Admin" }] : []),
+                    ]
+              ).map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
@@ -83,7 +100,7 @@ export function AppShell({ children, isAdmin = false }: { children: React.ReactN
             </form>
 
             {/* Mobile hamburger (renders its own slide-out panel) */}
-            <MobileNav isAdmin={isAdmin} />
+            <MobileNav isWorker={isWorker} showFieldCaptureLink={showFieldCaptureLink} showAdminLink={showAdminLink} />
           </div>
         </div>
       </header>

@@ -33,13 +33,27 @@ export default async function HistoryPage() {
 
   const runList = runs ?? [];
 
-  const { data: fieldRows } = await supabase
+  const { data: teamWorkers } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("employer_profile_id", user.id)
+    .eq("account_role", "worker");
+
+  const teamIds = (teamWorkers ?? []).map((w) => w.id);
+  const fieldWorkerIds = [user.id, ...teamIds];
+
+  let fieldQuery = supabase
     .from("field_uploads")
     .select(
       "id, created_at, worker_name, worker_id, raw_notes, generated_caption, hashtags, photo_url, photo_path, event_type, source, status",
     )
-    .eq("worker_id", user.id)
     .order("created_at", { ascending: false });
+  if (fieldWorkerIds.length === 1) {
+    fieldQuery = fieldQuery.eq("worker_id", fieldWorkerIds[0]);
+  } else {
+    fieldQuery = fieldQuery.in("worker_id", fieldWorkerIds);
+  }
+  const { data: fieldRows } = await fieldQuery;
 
   const fieldUploads = (fieldRows ?? []) as FieldUploadRow[];
 

@@ -4,19 +4,28 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
+export function MobileNav({
+  isWorker = false,
+  showFieldCaptureLink = true,
+  showAdminLink = false,
+}: {
+  isWorker?: boolean;
+  showFieldCaptureLink?: boolean;
+  showAdminLink?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  // Non-admins get "Post From The Field" second (after Dashboard) for quick thumb reach.
-  // Role: profiles.is_admin — there is no separate worker/employee column; treat !is_admin as field-eligible.
-  const NAV_LINKS = [
-    { href: "/dashboard", label: "Dashboard" },
-    ...(!isAdmin ? [{ href: "/dashboard/field-upload", label: "📸 Post From The Field" }] : []),
-    { href: "/generator", label: "Generator" },
-    { href: "/profile", label: "Profile" },
-    { href: "/history", label: "History" },
-    ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
-  ];
+
+  const NAV_LINKS = isWorker
+    ? [{ href: "/dashboard/field-upload", label: "📸 Field capture" }]
+    : [
+        { href: "/dashboard", label: "Dashboard" },
+        ...(showFieldCaptureLink ? [{ href: "/dashboard/field-upload", label: "📸 Post From The Field" }] : []),
+        { href: "/generator", label: "Generator" },
+        { href: "/profile", label: "Profile" },
+        { href: "/history", label: "History" },
+        ...(showAdminLink ? [{ href: "/admin", label: "Admin" }] : []),
+      ];
 
   return (
     <>

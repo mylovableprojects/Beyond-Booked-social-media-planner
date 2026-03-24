@@ -460,6 +460,10 @@ export async function POST(request: Request) {
     });
   }
 
+  if (profileAndLibraries.profile.account_role === "worker") {
+    return NextResponse.json({ ok: false, error: "Forbidden" } satisfies ApiErrorBody, { status: 403 });
+  }
+
   const profileParsed = profileRowSchema.safeParse(profileAndLibraries.profile);
   if (!profileParsed.success) {
     return NextResponse.json(

@@ -20,6 +20,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Cannot change your own admin status" }, { status: 400 });
   }
 
+  const { data: target } = await admin
+    .from("profiles")
+    .select("account_role")
+    .eq("id", userId)
+    .maybeSingle<Pick<ProfileRow, "account_role">>();
+  if (target?.account_role === "worker") {
+    return NextResponse.json({ error: "Field worker accounts cannot be platform admins" }, { status: 400 });
+  }
+
   const { error } = await admin
     .from("profiles")
     .update({ is_admin: isAdmin })
