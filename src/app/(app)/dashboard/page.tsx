@@ -14,6 +14,8 @@ export default async function DashboardPage() {
     eventTypes.length > 0 &&
     serviceCategories.length > 0;
 
+  const showFieldCrewTools = Boolean(profile && !profile.is_admin);
+
   return (
     <div className="space-y-6">
       <style>{`
@@ -173,6 +175,51 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* ── Field crew: big shortcut + home-screen hint (non-admins) ── */}
+      {showFieldCrewTools && profileComplete && (
+        <div
+          className="animate-fade-up rounded-3xl border-2 border-amber-300/60 px-6 py-6 sm:px-8 sm:py-7"
+          style={{
+            background: "linear-gradient(135deg, rgba(255,200,120,0.2) 0%, rgba(255,88,51,0.08) 100%)",
+            boxShadow: "0 12px 40px rgba(255, 120, 60, 0.12)",
+          }}
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p
+                className="mb-1 text-xs font-bold uppercase tracking-widest text-amber-900/70"
+                style={{ fontFamily: "var(--font-dm-sans)" }}
+              >
+                Drivers &amp; setup crew
+              </p>
+              <h2
+                className="text-xl font-extrabold sm:text-2xl"
+                style={{ fontFamily: "var(--font-syne)", color: "var(--navy)" }}
+              >
+                Post from the job site
+              </h2>
+              <p className="mt-2 max-w-xl text-sm leading-relaxed text-stone-700" style={{ fontFamily: "var(--font-dm-sans)" }}>
+                Open <strong>Field capture</strong> on your phone, then use{" "}
+                <strong>Add to Home Screen</strong> (Share menu on iPhone, or the browser menu on Android){" "}
+                <em>while you&apos;re on that page</em> — the icon opens straight back to field upload.
+              </p>
+            </div>
+            <Link
+              href="/dashboard/field-upload"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-bold text-white shadow-lg transition-opacity hover:opacity-95 sm:min-w-[200px]"
+              style={{
+                background: "linear-gradient(135deg, var(--accent) 0%, #e8451f 100%)",
+                fontFamily: "var(--font-syne)",
+                boxShadow: "0 8px 28px rgba(255, 88, 51, 0.35)",
+              }}
+            >
+              <span aria-hidden>📸</span>
+              Open field capture
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* ── Stats row ── */}
       <div className="grid gap-4 sm:grid-cols-3">
         {[
@@ -285,6 +332,9 @@ export default async function DashboardPage() {
           <div className="mt-2 flex flex-col gap-2">
             {[
               { href: profileComplete ? "/generator" : "/onboarding", label: profileComplete ? "New generation" : "Complete profile", primary: true  },
+              ...(showFieldCrewTools
+                ? [{ href: "/dashboard/field-upload" as const, label: "📸 Field capture (mobile)", primary: false as const }]
+                : []),
               { href: "/profile",   label: "Update profile", primary: false },
               { href: "/history",   label: "View history",   primary: false },
             ].map(({ href, label, primary }) => (

@@ -206,6 +206,21 @@ export function FieldUploadClient({ userId, workerName }: Props) {
         </p>
       </div>
 
+      <div
+        className="mb-6 rounded-2xl border border-stone-200 bg-white/90 px-4 py-3 text-sm leading-relaxed text-stone-700 shadow-sm"
+        style={{ fontFamily: "var(--font-dm-sans)" }}
+      >
+        <p className="font-bold text-stone-800" style={{ fontFamily: "var(--font-syne)" }}>
+          Add to your phone home screen
+        </p>
+        <p className="mt-1.5">
+          Stay on <strong>this page</strong>, then:{" "}
+          <strong>iPhone (Safari)</strong> — tap Share → <em>Add to Home Screen</em>.{" "}
+          <strong>Android (Chrome)</strong> — tap ⋮ → <em>Add to Home screen</em> or <em>Install app</em>.
+          The shortcut will reopen field capture in one tap.
+        </p>
+      </div>
+
       <div className="space-y-6">
         <input
           ref={cameraInputRef}

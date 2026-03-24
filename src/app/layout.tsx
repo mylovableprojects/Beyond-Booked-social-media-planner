@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Syne, DM_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -15,10 +15,25 @@ const dmSans = DM_Sans({
   weight: ["400", "500", "600"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#10172c",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: "Beyond Booked — Social Media for Party Rental Businesses",
   description:
     "Generate weeks of high-converting social media posts in minutes — built specifically for party rental businesses.",
+  appleWebApp: {
+    capable: true,
+    title: "Beyond Booked",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   openGraph: {
     title: "Beyond Booked — Social Media for Party Rental Businesses",
     description:
@@ -32,6 +47,10 @@ export const metadata: Metadata = {
     description:
       "Generate weeks of high-converting social media posts in minutes — built specifically for party rental businesses.",
     images: ["/og-image.png"],
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
   },
 };
 
