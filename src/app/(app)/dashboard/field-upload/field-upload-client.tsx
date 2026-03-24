@@ -300,12 +300,15 @@ export function FieldUploadClient({ userId, workerName }: Props) {
           >
             What are we looking at?
           </span>
+          <p className="mb-2 text-xs leading-relaxed text-stone-600" style={{ fontFamily: "var(--font-dm-sans)" }}>
+            <strong>Day-in-the-life:</strong> add one or two real beats from the job (timing, weather, how the space looked before/after, safety check, quick word with the host). Only what actually happened — it makes the post feel like your crew, not a template.
+          </p>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             disabled={busy || saving}
             rows={5}
-            placeholder="Setup, event type, neighborhood, weather, crowd energy — anything that makes this post feel real."
+            placeholder="e.g. All Aboard toddler inflatable for a 6th birthday — rolled in at 9, grass still wet, kid’s face when the blower kicked on. Host wanted it staked tight before cousins arrived."
             className="w-full rounded-2xl border-2 border-amber-100 bg-white/90 px-4 py-4 text-base text-stone-800 shadow-inner outline-none ring-amber-300/30 placeholder:text-stone-400 focus:border-amber-300 focus:ring-4 disabled:opacity-60"
             style={{ fontFamily: "var(--font-dm-sans)" }}
           />

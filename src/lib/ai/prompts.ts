@@ -130,6 +130,23 @@ HOOK FORMULAS:
 `,
 } satisfies Record<ContentFramework, string>;
 
+/**
+ * Appended for /api/generate-field-post only: same Beyond Bookings stack, but voice + angle = job-site BTS.
+ */
+export const FIELD_CAPTURE_BTS_BEYOND_BOOKINGS = `
+FIELD CAPTURE (Beyond Bookings + behind-the-scenes):
+- You are writing from the job site: a crew member just captured this moment. Voice is warm, human, and on-the-ground — "we" / "our team" is natural. Never sound like a brochure or a generic scheduler post.
+- Treat this as the Wednesday "Behind the scenes" lane from the weekly pattern, but still drive Beyond Bookings outcomes: show the transformation (stressed host → relaxed, party ready, kids lit up) through THIS specific setup — not abstract advice.
+- The worker's notes + the photo are the spine. Name the real scene (e.g. toddler inflatable, birthday, type of event) and connect it to one or more Core 6 shifts in plain language. Do not pivot to a generic party tip that could apply without those notes.
+- Proof over specs: readers should feel the care, timing, and relief of pro setup. Do not list dimensions, SKUs, or inventory-style bullet points.
+- If notes include only a child's or guest's first name, you may use it lightly for humanity; never invent or add last names, street addresses, schools, or other private details. If safety is unclear, keep people anonymous ("the birthday crew", "this family").
+
+DAY-IN-THE-LIFE (for drivers & setup crew — use lightly, stay true to notes/photo):
+- Optional but encouraged: open with one small, real "on the truck / on the grass" moment — timing, weather, a detail you noticed, how the space looked before vs after, a quick human beat with the host, or the quiet before guests arrive. Only invent sensory detail if it fits the photo or notes; otherwise stay general.
+- One thread of "how we work" is enough: arrival, safety checks, staking or anchoring, testing a blower, walking the host through pickup — pick what matches this job, not a full checklist.
+- Keep the Instagram hook line punchy (platform rules still apply); tuck longer day-in-life color into the body paragraphs.
+`.trim();
+
 export const ANTI_AI_RULES_SECTION = `
 ANTI-AI RULES (follow strictly):
 - Do not mention that you are an AI, a model, or that you used any tools.

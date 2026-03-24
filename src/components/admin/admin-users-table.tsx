@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type UserRow = {
   id: string;
@@ -33,6 +33,10 @@ function roleLabel(u: UserRow): string {
 export function AdminUsersTable({ users: initial, currentUserId, canFullAdmin }: Props) {
   const [users, setUsers] = useState(initial);
   const [loading, setLoading] = useState<Record<string, string>>({}); // id → action
+
+  useEffect(() => {
+    setUsers(initial);
+  }, [initial]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [impersonateLink, setImpersonateLink] = useState<{ link: string; email: string } | null>(null);
 

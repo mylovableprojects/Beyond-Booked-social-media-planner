@@ -6,7 +6,11 @@ import { getCtaForPost } from "@/domain/content-engine/cta-rotator";
 import { humanizeContent } from "@/domain/content-engine/humanization-pass";
 import { validatePlatformRules } from "@/domain/content-engine/platform-rules";
 import { getSeasonalMoments } from "@/domain/content-engine/seasonal-moments";
-import { ANTI_AI_RULES_SECTION, FRAMEWORK_PROMPTS } from "@/lib/ai/prompts";
+import {
+  ANTI_AI_RULES_SECTION,
+  FIELD_CAPTURE_BTS_BEYOND_BOOKINGS,
+  FRAMEWORK_PROMPTS,
+} from "@/lib/ai/prompts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getProfileWithLibrariesForSessionUser } from "@/services/repositories/profiles.repository";
 import { AnthropicProvider } from "@/services/llm/anthropic";
@@ -123,12 +127,11 @@ export async function POST(request: Request) {
     : "";
 
   const fieldContext = `
-=== FIELD CAPTURE (today's job site) ===
-A team member uploaded a photo and quick notes. Use this as the real scene for this post.
-Write ONE Instagram post following every rule above (Beyond Bookings angle: emotional outcome and transformation, not equipment specs).
+=== TODAY'S JOB SITE (facts to use) ===
+A crew member uploaded this photo and notes. The post must read like authentic behind-the-scenes content from that visit, merged with the Beyond Bookings rules already above (transformation, emotional payoff, Core 6 — but grounded in THIS setup).
 
 ${brandVoiceLine}
-Photo URL (context only — do not paste the raw URL into the post unless it genuinely helps):
+Photo URL (context only — do not paste the raw URL into the caption unless it genuinely helps):
 ${parsed.data.photoUrl}
 
 Notes from the field:
@@ -136,10 +139,16 @@ Notes from the field:
 ${parsed.data.workerNotes}
 """
 
-Safety: Do not include any client's last name or private street address. If the notes do not give a safe location, keep geography general.
+Safety: No last names, street addresses, or private details not in the notes. If geography isn't safe to mention, stay general.
 `.trim();
 
-  const system = [FRAMEWORK_PROMPTS["beyond-bookings"], ANTI_AI_RULES_SECTION].filter(Boolean).join("\n\n");
+  const system = [
+    FRAMEWORK_PROMPTS["beyond-bookings"],
+    FIELD_CAPTURE_BTS_BEYOND_BOOKINGS,
+    ANTI_AI_RULES_SECTION,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 
   const userPrompt = `${generatorAlignedPrompt}\n\n${fieldContext}`;
 
