@@ -199,9 +199,8 @@ export default async function DashboardPage() {
                 Post from the job site
               </h2>
               <p className="mt-2 max-w-xl text-sm leading-relaxed text-stone-700" style={{ fontFamily: "var(--font-dm-sans)" }}>
-                Open <strong>Field capture</strong> on your phone, then use{" "}
-                <strong>Add to Home Screen</strong> (Share menu on iPhone, or the browser menu on Android){" "}
-                <em>while you&apos;re on that page</em> — the icon opens straight back to field upload.
+                On your phone, use <strong>Add to Home Screen</strong> (Share on iPhone, browser menu on Android).{" "}
+                The saved icon opens <strong>Field capture</strong> — log in the first time if asked, then you&apos;re set.
               </p>
             </div>
             <Link

@@ -214,10 +214,9 @@ export function FieldUploadClient({ userId, workerName }: Props) {
           Add to your phone home screen
         </p>
         <p className="mt-1.5">
-          Stay on <strong>this page</strong>, then:{" "}
-          <strong>iPhone (Safari)</strong> — tap Share → <em>Add to Home Screen</em>.{" "}
-          <strong>Android (Chrome)</strong> — tap ⋮ → <em>Add to Home screen</em> or <em>Install app</em>.
-          The shortcut will reopen field capture in one tap.
+          <strong>iPhone (Safari)</strong> — Share → <em>Add to Home Screen</em>.{" "}
+          <strong>Android (Chrome)</strong> — ⋮ → <em>Add to Home screen</em> or <em>Install app</em>.
+          The icon opens this field screen; first time you may need to log in.
         </p>
       </div>
 

@@ -2,7 +2,8 @@ import type { MetadataRoute } from "next";
 
 /**
  * Enables “Add to Home Screen” / install on mobile with a proper app shell.
- * start_url: dashboard (middleware sends unauthenticated users to login).
+ * start_url: field capture so the home-screen icon opens there (not the main dashboard).
+ * Unauthenticated users are sent to /login?next=/dashboard/field-upload by middleware.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -10,7 +11,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Beyond Booked",
     description:
       "Social content for party rental businesses — generator, field capture, and archive.",
-    start_url: "/dashboard",
+    start_url: "/dashboard/field-upload",
     scope: "/",
     display: "standalone",
     orientation: "portrait-primary",
