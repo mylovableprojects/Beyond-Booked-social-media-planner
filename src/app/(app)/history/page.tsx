@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { FieldUploadArchiveCard } from "@/components/history/field-upload-archive-card";
 import { HistoryDownloadButton } from "@/components/history/history-download-button";
+import type { FieldUploadRow } from "@/types/db";
 
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -31,6 +33,16 @@ export default async function HistoryPage() {
 
   const runList = runs ?? [];
 
+  const { data: fieldRows } = await supabase
+    .from("field_uploads")
+    .select(
+      "id, created_at, worker_name, worker_id, raw_notes, generated_caption, hashtags, photo_url, photo_path, event_type, source, status",
+    )
+    .eq("worker_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const fieldUploads = (fieldRows ?? []) as FieldUploadRow[];
+
   // Fetch platform selections for all runs in one query
   let selectionMap: Record<string, string[]> = {};
   if (runList.length > 0) {
@@ -57,14 +69,50 @@ export default async function HistoryPage() {
           Your content archive
         </h1>
         <p style={{ marginTop: "0.4rem", fontSize: "0.9rem", color: "var(--muted-fg)" }}>
-          {runList.length > 0
-            ? `${runList.length} batch${runList.length !== 1 ? "es" : ""} — copy, export, or revisit anytime.`
-            : "Every run you generate will appear here."}
+          {runList.length > 0 || fieldUploads.length > 0
+            ? [
+                runList.length > 0
+                  ? `${runList.length} generator batch${runList.length !== 1 ? "es" : ""}`
+                  : null,
+                fieldUploads.length > 0
+                  ? `${fieldUploads.length} field capture${fieldUploads.length !== 1 ? "s" : ""}`
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(" · ") + " — copy or revisit anytime."
+            : "Saved generator runs and field photos will appear here."}
         </p>
       </div>
 
+      {/* Field uploads saved from /dashboard/field-upload */}
+      {fieldUploads.length > 0 && (
+        <div className="animate-fade-up mb-10">
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+            <span style={{ fontSize: "1.1rem" }} aria-hidden>
+              📸
+            </span>
+            <h2
+              style={{
+                fontFamily: "var(--font-syne)",
+                fontSize: "1.05rem",
+                fontWeight: 800,
+                color: "var(--navy)",
+                margin: 0,
+              }}
+            >
+              From the field
+            </h2>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+            {fieldUploads.map((row) => (
+              <FieldUploadArchiveCard key={row.id} row={row} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {runList.length === 0 ? (
-        /* Empty state */
+        /* Empty state — generator batches only (field uploads may still show above) */
         <div
           className="animate-fade-up"
           style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "1.5rem", overflow: "hidden" }}
@@ -75,19 +123,38 @@ export default async function HistoryPage() {
               📋
             </div>
             <div>
-              <h2 style={{ fontFamily: "var(--font-syne)", fontSize: "1.375rem", fontWeight: 800, color: "var(--navy)", marginBottom: "0.5rem" }}>No runs yet</h2>
+              <h2 style={{ fontFamily: "var(--font-syne)", fontSize: "1.375rem", fontWeight: 800, color: "var(--navy)", marginBottom: "0.5rem" }}>No generator batches yet</h2>
               <p style={{ fontSize: "0.875rem", color: "var(--muted-fg)", lineHeight: 1.6, maxWidth: 340 }}>
-                Once you generate content, every batch will appear here for quick re-copy or export.
+                Multi-platform runs from the Generator will show up here. Field photos you save appear in &quot;From the field&quot; above.
               </p>
             </div>
             <Link href="/generator" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "var(--accent)", color: "#fff", borderRadius: "0.875rem", padding: "0.75rem 1.75rem", fontSize: "0.875rem", fontWeight: 700, fontFamily: "var(--font-syne)", textDecoration: "none" }}>
-              Generate your first batch →
+              Open generator →
             </Link>
           </div>
         </div>
       ) : (
         /* Run list */
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+        <div>
+          {fieldUploads.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+              <span style={{ fontSize: "1.1rem" }} aria-hidden>
+                📋
+              </span>
+              <h2
+                style={{
+                  fontFamily: "var(--font-syne)",
+                  fontSize: "1.05rem",
+                  fontWeight: 800,
+                  color: "var(--navy)",
+                  margin: 0,
+                }}
+              >
+                Generator batches
+              </h2>
+            </div>
+          )}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
           {runList.map((run) => {
             const platforms = selectionMap[run.id] ?? [];
             const monthName = MONTH_NAMES[(run.month ?? 1) - 1] ?? "";
@@ -162,6 +229,7 @@ export default async function HistoryPage() {
               </div>
             );
           })}
+          </div>
         </div>
       )}
     </div>

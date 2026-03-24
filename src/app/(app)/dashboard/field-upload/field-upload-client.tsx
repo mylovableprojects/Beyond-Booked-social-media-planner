@@ -146,21 +146,23 @@ export function FieldUploadClient({ userId, workerName }: Props) {
 
     setSaving(true);
     try {
-      const { error: insErr } = await supabase.from("field_uploads").insert({
-        worker_name: workerName,
-        worker_id: userId,
-        raw_notes: notes.trim(),
-        generated_caption: generatedCaption,
-        hashtags: generatedHashtags,
-        photo_url: publicUrl,
-        photo_path: storagePath,
-        event_type: null,
-        source: "field_upload",
-        status: "draft",
+      const res = await fetch("/api/field-upload/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          workerName,
+          rawNotes: notes.trim(),
+          generatedCaption,
+          hashtags: generatedHashtags,
+          photoUrl: publicUrl,
+          photoPath: storagePath,
+          eventType: null,
+        }),
       });
 
-      if (insErr) {
-        setError(insErr.message ?? "Could not save.");
+      const payload = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !payload.ok) {
+        setError(payload.error ?? "Could not save.");
         return;
       }
 
