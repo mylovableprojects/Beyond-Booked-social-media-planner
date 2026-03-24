@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { requireUser } from "@/lib/auth/session";
+import { isWorkerAccount } from "@/lib/auth/account-roles";
 import { getProfileWithLibraries } from "@/services/repositories/profiles.repository";
 
 export default async function DashboardPage() {
@@ -15,10 +16,7 @@ export default async function DashboardPage() {
     serviceCategories.length > 0;
 
   const showFieldCrewTools = Boolean(
-    profile &&
-      profile.account_role !== "worker" &&
-      !profile.is_admin &&
-      !profile.is_support_admin,
+    profile && !isWorkerAccount(profile) && !profile.is_admin && !profile.is_support_admin,
   );
 
   return (

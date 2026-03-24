@@ -1,5 +1,6 @@
 import { BusinessProfileForm } from "@/components/profile/business-profile-form";
 import { OwnerWorkersPanel } from "@/components/profile/owner-workers-panel";
+import { canManageWorkerInvites } from "@/lib/auth/account-roles";
 import { ownerCanUsePaidFeatures } from "@/lib/auth/subscription-access";
 import { requireUser } from "@/lib/auth/session";
 import { getProfileWithLibraries } from "@/services/repositories/profiles.repository";
@@ -23,10 +24,7 @@ export default async function ProfilePage({
   if (savedValue === "1") {
     toast = { variant: "success", message: "Profile saved successfully." };
   }
-  const showTeamSection =
-    profile &&
-    profile.account_role !== "worker" &&
-    ownerCanUsePaidFeatures(profile);
+  const showTeamSection = Boolean(profile && canManageWorkerInvites(profile) && ownerCanUsePaidFeatures(profile));
 
   if (errorValue) {
     const message =

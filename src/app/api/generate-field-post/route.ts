@@ -1,71 +1,52 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { buildPrompt } from "@/domain/content-engine/prompt-builder";
+import { getCtaForPost } from "@/domain/content-engine/cta-rotator";
+import { humanizeContent } from "@/domain/content-engine/humanization-pass";
+import { validatePlatformRules } from "@/domain/content-engine/platform-rules";
+import { getSeasonalMoments } from "@/domain/content-engine/seasonal-moments";
+import { ANTI_AI_RULES_SECTION, FRAMEWORK_PROMPTS } from "@/lib/ai/prompts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getProfileWithLibrariesForSessionUser } from "@/services/repositories/profiles.repository";
 import { AnthropicProvider } from "@/services/llm/anthropic";
 
 export const maxDuration = 60;
 
-const FIELD_POST_MODEL = "claude-sonnet-4-20250514";
-
-const FIELD_POST_SYSTEM_PROMPT = `You are a social media content creator for a party rental business. Your job is to turn a 
-field worker's quick photo description into a warm, engaging, and beautifully written 
-social media post optimized for Facebook and Instagram.
-
-The worker will give you a short description of what they're doing — this might include 
-the type of setup, the event type, the client's name (if shared), the location, or 
-anything else they want to highlight.
-
-Using their description, write a social media post that:
-
-1. CAPTION: Write 3–5 sentences in a warm, community-focused tone. Make it feel human, 
-   celebratory, and behind-the-scenes authentic. Highlight the excitement of the event, 
-   the care put into the setup, and the joy it will bring guests. Vary the structure 
-   occasionally.
-
-2. EMOJIS: Sprinkle 4–8 relevant emojis naturally throughout the caption.
-
-3. HASHTAGS: End with 10–15 hashtags mixing broad, niche, and event-specific tags. 
-   Always include #PartyRentalBusiness and #PartyRentalToolkit.
-
-FORMAT your response exactly like this:
-
-[CAPTION]
-(caption text with emojis woven in)
-
-[HASHTAGS]
-(hashtag list)
-
-Important rules:
-- Never mention any client's last name or private address
-- If no location is given, keep it general
-- Always sound like a real person, not a robot`;
+const FIELD_PLATFORM = "instagram" as const;
 
 const bodySchema = z.object({
   workerNotes: z.string().trim().min(1, "workerNotes is required."),
   photoUrl: z.string().url("photoUrl must be a valid URL."),
 });
 
+const modelPostOutputSchema = z
+  .object({
+    hookType: z.string().trim().min(1),
+    content: z.string().trim().min(1),
+    cta: z.string().trim().min(1),
+    imageSuggestion: z.string().trim().min(1),
+  })
+  .strict();
+
 const llm = new AnthropicProvider();
 
-function parseCaptionAndHashtags(raw: string): { caption: string; hashtags: string } | null {
-  const text = raw.trim();
-  const capRe = /\[CAPTION\]/i;
-  const hashRe = /\[HASHTAGS\]/i;
-  const capMatch = capRe.exec(text);
-  const hashMatch = hashRe.exec(text);
-  if (!capMatch || !hashMatch || capMatch.index === undefined || hashMatch.index === undefined) {
-    return null;
-  }
-  if (hashMatch.index <= capMatch.index) {
-    return null;
-  }
-  const caption = text.slice(capMatch.index + capMatch[0].length, hashMatch.index).trim();
-  const hashtags = text.slice(hashMatch.index + hashMatch[0].length).trim();
-  if (!caption || !hashtags) {
-    return null;
-  }
-  return { caption, hashtags };
+function splitInstagramCaptionAndHashtags(content: string): { caption: string; hashtags: string } | null {
+  const trimmed = content.trim();
+  const blocks = trimmed
+    .split(/\n\s*\n/)
+    .map((b) => b.trim())
+    .filter(Boolean);
+  if (blocks.length < 2) return null;
+  const last = blocks[blocks.length - 1]!;
+  const tokens = last.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return null;
+  const allHash = tokens.every((t) => /^#[A-Za-z0-9_]+$/.test(t));
+  if (!allHash) return null;
+  return {
+    caption: blocks.slice(0, -1).join("\n\n"),
+    hashtags: last,
+  };
 }
 
 export async function POST(request: Request) {
@@ -93,23 +74,83 @@ export async function POST(request: Request) {
     );
   }
 
-  const userPrompt = `Photo (public URL — use only as context; do not paste the raw URL into the caption unless it genuinely helps):
+  const { profile, eventTypes, serviceCategories, sessionAccountRole, sessionEmployerProfileId } =
+    await getProfileWithLibrariesForSessionUser(user.id);
+
+  if (!profile) {
+    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+  }
+
+  if (sessionAccountRole === "worker" && !sessionEmployerProfileId) {
+    return NextResponse.json(
+      { error: "Worker account is not linked to a business profile." },
+      { status: 403 },
+    );
+  }
+
+  if (eventTypes.length === 0 || serviceCategories.length === 0) {
+    return NextResponse.json(
+      {
+        error:
+          "This business profile needs at least one event type and one service category (owner: complete Profile).",
+      },
+      { status: 400 },
+    );
+  }
+
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const year = now.getFullYear();
+  const city = profile.city?.trim() || "your area";
+
+  const seasonalMoments = getSeasonalMoments({ month, year, city });
+  const cta = getCtaForPost(FIELD_PLATFORM, 0, year * 100 + month);
+
+  const generatorAlignedPrompt = buildPrompt({
+    platform: FIELD_PLATFORM,
+    framework: "beyond-bookings",
+    city,
+    eventTypes,
+    serviceCategories,
+    seasonalMoments,
+    cta,
+    promoText: undefined,
+    featuredProduct: undefined,
+  });
+
+  const brandVoiceLine = profile.brand_notes?.trim()
+    ? `Owner voice / brand notes (use only if it fits naturally):\n${profile.brand_notes.trim()}\n`
+    : "";
+
+  const fieldContext = `
+=== FIELD CAPTURE (today's job site) ===
+A team member uploaded a photo and quick notes. Use this as the real scene for this post.
+Write ONE Instagram post following every rule above (Beyond Bookings angle: emotional outcome and transformation, not equipment specs).
+
+${brandVoiceLine}
+Photo URL (context only — do not paste the raw URL into the post unless it genuinely helps):
 ${parsed.data.photoUrl}
 
-Worker's description:
+Notes from the field:
 """
 ${parsed.data.workerNotes}
-"""`;
+"""
 
-  let content: string;
+Safety: Do not include any client's last name or private street address. If the notes do not give a safe location, keep geography general.
+`.trim();
+
+  const system = [FRAMEWORK_PROMPTS["beyond-bookings"], ANTI_AI_RULES_SECTION].filter(Boolean).join("\n\n");
+
+  const userPrompt = `${generatorAlignedPrompt}\n\n${fieldContext}`;
+
+  let raw: string;
   try {
     const out = await llm.generate({
-      system: FIELD_POST_SYSTEM_PROMPT,
-      model: FIELD_POST_MODEL,
-      maxTokens: 2048,
+      system,
       prompt: userPrompt,
+      maxTokens: 2048,
     });
-    content = out.content;
+    raw = out.content;
   } catch (e) {
     console.error("generate-field-post", e);
     return NextResponse.json(
@@ -118,16 +159,48 @@ ${parsed.data.workerNotes}
     );
   }
 
-  const sections = parseCaptionAndHashtags(content);
-  if (!sections) {
+  let content: string;
+  try {
+    const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    const parsedOut = modelPostOutputSchema.safeParse(JSON.parse(stripped));
+    if (!parsedOut.success) {
+      return NextResponse.json(
+        { error: "Could not parse model response. Please try again." },
+        { status: 502 },
+      );
+    }
+    content = parsedOut.data.content;
+  } catch {
     return NextResponse.json(
-      { error: "Could not parse AI response. Please try again." },
+      { error: "Model did not return valid JSON. Please try again." },
+      { status: 502 },
+    );
+  }
+
+  content = humanizeContent(content);
+  const validationReport = validatePlatformRules(FIELD_PLATFORM, content, city);
+  if (!validationReport.isValid) {
+    return NextResponse.json(
+      {
+        error: "Generated post did not pass the same platform checks as the main generator. Try again.",
+        details: validationReport.errors,
+      },
+      { status: 502 },
+    );
+  }
+
+  const split = splitInstagramCaptionAndHashtags(content);
+  if (!split) {
+    return NextResponse.json(
+      {
+        error: "Could not separate caption and hashtag line. Please try again.",
+      },
       { status: 502 },
     );
   }
 
   return NextResponse.json({
-    caption: sections.caption,
-    hashtags: sections.hashtags,
+    caption: split.caption,
+    hashtags: split.hashtags,
   });
 }

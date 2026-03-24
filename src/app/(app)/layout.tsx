@@ -10,16 +10,13 @@ export default async function ProtectedLayout({
 }) {
   const user = await requireUser();
   const admin = createSupabaseAdminClient();
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("is_admin, is_support_admin, account_role")
-    .eq("id", user.id)
-    .maybeSingle<Pick<ProfileRow, "is_admin" | "is_support_admin" | "account_role">>();
+  // Select * so a partial migration (missing new columns) does not fail the whole row fetch.
+  const { data: profile } = await admin.from("profiles").select("*").eq("id", user.id).maybeSingle<ProfileRow>();
 
   return (
     <AppShell
-      isAdmin={profile?.is_admin ?? false}
-      isSupportAdmin={profile?.is_support_admin ?? false}
+      isAdmin={Boolean(profile?.is_admin)}
+      isSupportAdmin={Boolean(profile?.is_support_admin)}
       isWorker={profile?.account_role === "worker"}
     >
       {children}

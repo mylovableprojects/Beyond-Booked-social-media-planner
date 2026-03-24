@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { canManageWorkerInvites } from "@/lib/auth/account-roles";
 import { ownerCanUsePaidFeatures } from "@/lib/auth/subscription-access";
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ProfileRow } from "@/types/db";
@@ -13,15 +14,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: me } = await supabase
-    .from("profiles")
-    .select("account_role, is_admin, subscription_status, trial_runs_used")
-    .eq("id", user.id)
-    .maybeSingle<
-      Pick<ProfileRow, "account_role" | "is_admin" | "subscription_status" | "trial_runs_used">
-    >();
+  const { data: me } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle<ProfileRow>();
 
-  if (!me || me.account_role !== "owner") {
+  if (me == null || !canManageWorkerInvites(me)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   if (!ownerCanUsePaidFeatures(me)) {

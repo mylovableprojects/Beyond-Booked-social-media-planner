@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabase/server";
 import { DEFAULT_EVENT_TYPES, DEFAULT_SERVICE_CATEGORIES } from "@/lib/constants/default-libraries";
 
 export async function hasProfile(profileId: string) {
@@ -46,6 +46,47 @@ export async function getProfileWithLibraries(profileId: string) {
     ]);
 
   return {
+    profile: profile ?? null,
+    eventTypes: (eventTypes ?? []).map((row) => row.name),
+    serviceCategories: (serviceCategories ?? []).map((row) => row.name),
+  };
+}
+
+/**
+ * Profile + libraries for the business whose content should drive generation.
+ * Field workers use their employer's profile (service role; bypasses RLS).
+ */
+export async function getProfileWithLibrariesForSessionUser(sessionUserId: string) {
+  const admin = createSupabaseAdminClient();
+  const { data: sessionProfile } = await admin
+    .from("profiles")
+    .select("account_role, employer_profile_id")
+    .eq("id", sessionUserId)
+    .maybeSingle();
+
+  const contentProfileId =
+    sessionProfile?.account_role === "worker" && sessionProfile.employer_profile_id
+      ? sessionProfile.employer_profile_id
+      : sessionUserId;
+
+  const [{ data: profile }, { data: eventTypes }, { data: serviceCategories }] = await Promise.all([
+    admin.from("profiles").select("*").eq("id", contentProfileId).maybeSingle(),
+    admin
+      .from("profile_event_types")
+      .select("name,is_default")
+      .eq("profile_id", contentProfileId)
+      .order("name", { ascending: true }),
+    admin
+      .from("profile_service_categories")
+      .select("name,is_default")
+      .eq("profile_id", contentProfileId)
+      .order("name", { ascending: true }),
+  ]);
+
+  return {
+    contentProfileId,
+    sessionAccountRole: (sessionProfile?.account_role as "owner" | "worker" | undefined) ?? "owner",
+    sessionEmployerProfileId: sessionProfile?.employer_profile_id ?? null,
     profile: profile ?? null,
     eventTypes: (eventTypes ?? []).map((row) => row.name),
     serviceCategories: (serviceCategories ?? []).map((row) => row.name),
