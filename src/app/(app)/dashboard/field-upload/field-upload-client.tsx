@@ -15,7 +15,10 @@ function safeFileSegment(name: string) {
 }
 
 export function FieldUploadClient({ userId, workerName }: Props) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  /** Rear camera — on many phones `capture` skips the photo library. */
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  /** No `capture` — opens library / Files / “Choose existing” on mobile. */
+  const libraryInputRef = useRef<HTMLInputElement>(null);
   const supabase = createSupabaseBrowserClient();
 
   const [file, setFile] = useState<File | null>(null);
@@ -32,12 +35,17 @@ export function FieldUploadClient({ userId, workerName }: Props) {
   const [generatedCaption, setGeneratedCaption] = useState<string | null>(null);
   const [generatedHashtags, setGeneratedHashtags] = useState<string | null>(null);
 
+  const clearFileInputs = useCallback(() => {
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
+    if (libraryInputRef.current) libraryInputRef.current.value = "";
+  }, []);
+
   const resetPreview = useCallback(() => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     setFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }, [previewUrl]);
+    clearFileInputs();
+  }, [previewUrl, clearFileInputs]);
 
   const resetFormForNextUpload = useCallback(() => {
     resetPreview();
@@ -66,8 +74,6 @@ export function FieldUploadClient({ userId, workerName }: Props) {
     setGeneratedCaption(null);
     setGeneratedHashtags(null);
   };
-
-  const openPicker = () => fileInputRef.current?.click();
 
   const handleGenerate = async () => {
     setError(null);
@@ -202,30 +208,55 @@ export function FieldUploadClient({ userId, workerName }: Props) {
 
       <div className="space-y-6">
         <input
-          ref={fileInputRef}
+          ref={cameraInputRef}
           type="file"
           accept="image/*"
           capture="environment"
           className="sr-only"
           onChange={onFileChange}
         />
+        <input
+          ref={libraryInputRef}
+          type="file"
+          accept="image/*"
+          className="sr-only"
+          onChange={onFileChange}
+        />
 
-        <button
-          type="button"
-          onClick={openPicker}
-          disabled={busy || saving}
-          className="flex min-h-[3.75rem] w-full items-center justify-center gap-3 rounded-2xl px-5 text-lg font-bold text-white shadow-lg transition active:scale-[0.99] disabled:opacity-60"
-          style={{
-            background: "linear-gradient(135deg, var(--accent) 0%, #e8451f 100%)",
-            fontFamily: "var(--font-syne)",
-            boxShadow: "0 8px 28px rgba(255, 88, 51, 0.35)",
-          }}
-        >
-          <span className="text-2xl" aria-hidden>
-            📷
-          </span>
-          Take Photo or Upload
-        </button>
+        <p className="text-center text-sm text-stone-600" style={{ fontFamily: "var(--font-dm-sans)" }}>
+          Camera for a new shot, or library if you already have the picture.
+        </p>
+
+        <div className="flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={() => cameraInputRef.current?.click()}
+            disabled={busy || saving}
+            className="flex min-h-[3.75rem] w-full items-center justify-center gap-3 rounded-2xl px-5 text-lg font-bold text-white shadow-lg transition active:scale-[0.99] disabled:opacity-60"
+            style={{
+              background: "linear-gradient(135deg, var(--accent) 0%, #e8451f 100%)",
+              fontFamily: "var(--font-syne)",
+              boxShadow: "0 8px 28px rgba(255, 88, 51, 0.35)",
+            }}
+          >
+            <span className="text-2xl" aria-hidden>
+              📷
+            </span>
+            Take photo
+          </button>
+          <button
+            type="button"
+            onClick={() => libraryInputRef.current?.click()}
+            disabled={busy || saving}
+            className="flex min-h-[3.75rem] w-full items-center justify-center gap-3 rounded-2xl border-2 border-amber-400/60 bg-white px-5 text-lg font-bold text-amber-950 shadow-md transition active:scale-[0.99] disabled:opacity-60"
+            style={{ fontFamily: "var(--font-syne)" }}
+          >
+            <span className="text-2xl" aria-hidden>
+              🖼️
+            </span>
+            Choose from library
+          </button>
+        </div>
 
         {previewUrl && (
           <div className="overflow-hidden rounded-2xl border-2 border-white shadow-md" style={{ boxShadow: "0 8px 30px rgba(0,0,0,0.08)" }}>

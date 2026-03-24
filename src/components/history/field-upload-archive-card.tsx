@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 
 import type { FieldUploadRow } from "@/types/db";
 
 type Props = { row: FieldUploadRow };
 
+type CopiedKind = "cap" | "hash" | "photoUrl" | "pageUrl" | "photoClip" | null;
+
 export function FieldUploadArchiveCard({ row }: Props) {
-  const [copied, setCopied] = useState<"cap" | "hash" | null>(null);
+  const [copied, setCopied] = useState<CopiedKind>(null);
+  const [busy, setBusy] = useState<string | null>(null);
 
   const created = new Date(row.created_at).toLocaleDateString("en-US", {
     month: "short",
@@ -17,7 +20,11 @@ export function FieldUploadArchiveCard({ row }: Props) {
     minute: "2-digit",
   });
 
-  async function copy(text: string, kind: "cap" | "hash") {
+  const sharePath = `/share/field/${row.id}`;
+  const shareUrl =
+    typeof window !== "undefined" ? `${window.location.origin}${sharePath}` : sharePath;
+
+  async function copy(text: string, kind: CopiedKind) {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(kind);
@@ -26,6 +33,81 @@ export function FieldUploadArchiveCard({ row }: Props) {
       /* ignore */
     }
   }
+
+  async function downloadImage() {
+    setBusy("img");
+    try {
+      const res = await fetch(row.photo_url, { mode: "cors" });
+      if (!res.ok) throw new Error("fetch");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const ext = blob.type.includes("png") ? "png" : blob.type.includes("webp") ? "webp" : "jpg";
+      a.download = `field-photo-${row.id.slice(0, 8)}.${ext}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      window.alert("Could not download the photo. Try Copy image link and open it in a new tab.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function copyImageToClipboard() {
+    setBusy("clip");
+    try {
+      const res = await fetch(row.photo_url, { mode: "cors" });
+      if (!res.ok) throw new Error("fetch");
+      const blob = await res.blob();
+      const type = blob.type && blob.type.startsWith("image/") ? blob.type : "image/png";
+      await navigator.clipboard.write([new ClipboardItem({ [type]: blob })]);
+      setCopied("photoClip");
+      setTimeout(() => setCopied(null), 2000);
+    } catch {
+      window.alert("Could not copy the image. Try Download photo or Copy image link.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function downloadHtmlFile() {
+    setBusy("html");
+    try {
+      const res = await fetch(sharePath);
+      if (!res.ok) throw new Error("fetch");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `field-capture-${row.id.slice(0, 8)}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      window.alert("Could not download the HTML file. Try Open HTML page and use Save As.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const btnBase: CSSProperties = {
+    padding: "0.4rem 0.85rem",
+    borderRadius: "0.625rem",
+    border: "1.5px solid var(--border)",
+    background: "transparent",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+    fontFamily: "var(--font-syne)",
+    cursor: "pointer",
+    color: "var(--navy)",
+  };
+
+  const primaryBtn: CSSProperties = {
+    ...btnBase,
+    border: "1.5px solid var(--accent)",
+    background: "var(--accent)",
+    color: "#fff",
+  };
 
   return (
     <div
@@ -89,45 +171,47 @@ export function FieldUploadArchiveCard({ row }: Props) {
               {row.hashtags}
             </p>
           )}
+
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.25rem" }}>
             {row.generated_caption && (
-              <button
-                type="button"
-                onClick={() => copy(row.generated_caption!, "cap")}
-                style={{
-                  padding: "0.4rem 0.85rem",
-                  borderRadius: "0.625rem",
-                  border: "1.5px solid var(--border)",
-                  background: "transparent",
-                  fontSize: "0.75rem",
-                  fontWeight: 700,
-                  fontFamily: "var(--font-syne)",
-                  cursor: "pointer",
-                  color: "var(--navy)",
-                }}
-              >
+              <button type="button" onClick={() => copy(row.generated_caption!, "cap")} style={btnBase}>
                 {copied === "cap" ? "Copied caption" : "Copy caption"}
               </button>
             )}
             {row.hashtags && (
-              <button
-                type="button"
-                onClick={() => copy(row.hashtags!, "hash")}
-                style={{
-                  padding: "0.4rem 0.85rem",
-                  borderRadius: "0.625rem",
-                  border: "1.5px solid var(--border)",
-                  background: "transparent",
-                  fontSize: "0.75rem",
-                  fontWeight: 700,
-                  fontFamily: "var(--font-syne)",
-                  cursor: "pointer",
-                  color: "var(--navy)",
-                }}
-              >
+              <button type="button" onClick={() => copy(row.hashtags!, "hash")} style={btnBase}>
                 {copied === "hash" ? "Copied hashtags" : "Copy hashtags"}
               </button>
             )}
+          </div>
+
+          <p style={{ fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--muted-fg)", margin: "0.5rem 0 0" }}>
+            Photo &amp; HTML page
+          </p>
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button type="button" onClick={() => copy(row.photo_url, "photoUrl")} style={btnBase} disabled={busy !== null}>
+              {copied === "photoUrl" ? "Copied link" : "Copy image link"}
+            </button>
+            <button type="button" onClick={() => void downloadImage()} style={btnBase} disabled={busy !== null}>
+              {busy === "img" ? "…" : "Download photo"}
+            </button>
+            <button type="button" onClick={() => void copyImageToClipboard()} style={btnBase} disabled={busy !== null}>
+              {busy === "clip" ? "…" : copied === "photoClip" ? "Copied photo" : "Copy photo"}
+            </button>
+            <button
+              type="button"
+              onClick={() => window.open(sharePath, "_blank", "noopener,noreferrer")}
+              style={primaryBtn}
+              disabled={busy !== null}
+            >
+              Open HTML page
+            </button>
+            <button type="button" onClick={() => copy(shareUrl, "pageUrl")} style={btnBase} disabled={busy !== null}>
+              {copied === "pageUrl" ? "Copied link" : "Copy page link"}
+            </button>
+            <button type="button" onClick={() => void downloadHtmlFile()} style={btnBase} disabled={busy !== null}>
+              {busy === "html" ? "…" : "Download HTML"}
+            </button>
           </div>
         </div>
       </div>
