@@ -37,11 +37,20 @@ export async function POST(request: NextRequest) {
   }
 
   const admin = createSupabaseAdminClient();
-  const { data: target } = await admin
+  const { data: target, error: targetErr } = await admin
     .from("profiles")
     .select("id, account_role, employer_profile_id")
     .eq("id", workerId)
     .maybeSingle<Pick<ProfileRow, "id" | "account_role" | "employer_profile_id">>();
+
+  if (targetErr) {
+    let msg = targetErr.message;
+    if (msg.includes("employer_profile_id") || msg.includes("account_role")) {
+      msg +=
+        " Apply the migration `supabase/migrations/202603260001_account_roles_workers_support.sql` in Supabase → SQL Editor.";
+    }
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 
   if (!target || target.account_role !== "worker" || target.employer_profile_id !== user.id) {
     return NextResponse.json({ error: "Worker not found" }, { status: 404 });

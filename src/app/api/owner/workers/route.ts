@@ -33,7 +33,12 @@ export async function GET() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    let msg = error.message;
+    if (msg.includes("employer_profile_id") || msg.includes("account_role")) {
+      msg +=
+        " Apply the migration `supabase/migrations/202603260001_account_roles_workers_support.sql` in Supabase → SQL Editor (or `supabase db push` from this repo).";
+    }
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 
   const rows = workers ?? [];
