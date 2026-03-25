@@ -93,6 +93,65 @@ const FRAMEWORK_INSTRUCTIONS: Record<ContentFramework, string> = {
   ].join("\n"),
 };
 
+const HUMAN_WRITING_RULES = [
+  "=== HUMAN WRITING RULES (mandatory — violations will be rejected) ===",
+  "These rules make the post sound like a real person wrote it, not AI.",
+  "BANNED — never use these words or phrases:",
+  "  • elevate, elevating, elevates",
+  "  • unleash, unlock",
+  "  • seamless, seamlessly",
+  "  • game-changer, game changer",
+  "  • dive in, dive into",
+  "  • leverage, leveraging",
+  "  • robust, cutting-edge, state-of-the-art",
+  "  • unforgettable experience, unforgettable memories",
+  "  • look no further",
+  "  • we are thrilled, we are excited to announce",
+  "  • transformative, transform your",
+  "  • in today's world, in today's fast-paced",
+  "  • it's important to note, it's worth noting",
+  "  • at the end of the day",
+  "  • take your [anything] to the next level",
+  "  • don't miss out",
+  "BANNED punctuation patterns:",
+  "  • Em dashes (— or –) — use a comma or period instead.",
+  "  • Exclamation marks: maximum ONE per post total. Zero is fine.",
+  "  • Ellipses (...) in the middle of sentences.",
+  "SENTENCE RULES:",
+  "  • Write short, direct sentences. Average sentence: 10–15 words.",
+  "  • Vary sentence length — mix short punchy sentences with slightly longer ones.",
+  "  • No filler openings like 'Are you ready to...', 'Have you ever wondered...', 'Imagine a world where...'",
+  "  • No corporate-speak. Write the way a local business owner would actually talk.",
+  "  • Contractions are encouraged (it's, we've, you'll, don't).",
+].join("\n");
+
+const OUTPUT_SECTION = [
+  "=== OUTPUT ===",
+  "Respond with a single JSON object — no markdown fences, no extra text.",
+  'Keys: "hookType" (string), "content" (the complete ready-to-post text), "cta" (the CTA sentence used), "imageSuggestion" (one sentence describing an ideal photo).',
+  "CRITICAL — content formatting:",
+  "  • Separate every paragraph with \\n\\n (a blank line). Never write the post as one block of text.",
+  "  • For Instagram: the hook line must be its own paragraph (\\n\\n before the body). Hashtags must be their own final paragraph (\\n\\n before them).",
+  "  • For Facebook and Google Business Profile: each paragraph separated by \\n\\n.",
+  "  • Short sentences within the same paragraph do NOT need extra line breaks — only use \\n\\n between paragraphs.",
+].join("\n");
+
+/** Beyond Bookings + how it applies to one field job (references full blueprint in system). */
+const BEYOND_BOOKINGS_FIELD_BRIDGE = [
+  "FRAMEWORK: Beyond Bookings — field capture (one job, one post)",
+  "Follow the Beyond Bookings blueprint in the system message: transformation, joy, connection, relief, pride, and Core 6 shifts where they fit naturally. You are not listing equipment; you are showing why pro setup matters for how people feel.",
+  "Anchor every emotional beat in the worker notes and photo: the event type they named, what the crew is doing (delivery, staking, blower check, walkthrough with the host, etc.), and optional item/rental name. The transformation should read as 'this setup, this party' — not a generic essay about all events.",
+  "Behind-the-scenes is fine (Wednesday lane in the weekly pattern), but the payoff is still emotional outcome: relief, kids lit up, host breathing easier, pride in the moment coming together.",
+  "Workers were asked for (1) optional item/rental name, (2) event type, (3) what they are doing. Those three anchors are your scene.",
+].join("\n");
+
+const FIELD_EXTRA_BANS = [
+  "FIELD-ONLY BANS (never use):",
+  "  • DM us, DMs, slide into our DMs, link in bio",
+  "  • Phrases that list unrelated event types (church, wedding, corporate, community, school) when the notes did not say them",
+  "  • Broad 'we do it all for everyone' closings",
+].join("\n");
+
 export function buildPrompt(input: PromptBuilderInput) {
   const platformRules = PLATFORM_RULES[input.platform];
   const frameworkInstructions = FRAMEWORK_INSTRUCTIONS[input.framework];
@@ -118,45 +177,38 @@ export function buildPrompt(input: PromptBuilderInput) {
     input.featuredProduct ? `Featured product: ${input.featuredProduct}.` : "",
     `CTA to use: ${input.cta}.`,
     "",
-    "=== HUMAN WRITING RULES (mandatory — violations will be rejected) ===",
-    "These rules make the post sound like a real person wrote it, not AI.",
-    "BANNED — never use these words or phrases:",
-    "  • elevate, elevating, elevates",
-    "  • unleash, unlock",
-    "  • seamless, seamlessly",
-    "  • game-changer, game changer",
-    "  • dive in, dive into",
-    "  • leverage, leveraging",
-    "  • robust, cutting-edge, state-of-the-art",
-    "  • unforgettable experience, unforgettable memories",
-    "  • look no further",
-    "  • we are thrilled, we are excited to announce",
-    "  • transformative, transform your",
-    "  • in today's world, in today's fast-paced",
-    "  • it's important to note, it's worth noting",
-    "  • at the end of the day",
-    "  • take your [anything] to the next level",
-    "  • don't miss out",
-    "BANNED punctuation patterns:",
-    "  • Em dashes (— or –) — use a comma or period instead.",
-    "  • Exclamation marks: maximum ONE per post total. Zero is fine.",
-    "  • Ellipses (...) in the middle of sentences.",
-    "SENTENCE RULES:",
-    "  • Write short, direct sentences. Average sentence: 10–15 words.",
-    "  • Vary sentence length — mix short punchy sentences with slightly longer ones.",
-    "  • No filler openings like 'Are you ready to...', 'Have you ever wondered...', 'Imagine a world where...'",
-    "  • No corporate-speak. Write the way a local business owner would actually talk.",
-    "  • Contractions are encouraged (it's, we've, you'll, don't).",
+    HUMAN_WRITING_RULES,
     "",
-    "=== OUTPUT ===",
-    "Respond with a single JSON object — no markdown fences, no extra text.",
-    'Keys: "hookType" (string), "content" (the complete ready-to-post text), "cta" (the CTA sentence used), "imageSuggestion" (one sentence describing an ideal photo).',
-    "CRITICAL — content formatting:",
-    "  • Separate every paragraph with \\n\\n (a blank line). Never write the post as one block of text.",
-    "  • For Instagram: the hook line must be its own paragraph (\\n\\n before the body). Hashtags must be their own final paragraph (\\n\\n before them).",
-    "  • For Facebook and Google Business Profile: each paragraph separated by \\n\\n.",
-    "  • Short sentences within the same paragraph do NOT need extra line breaks — only use \\n\\n between paragraphs.",
+    OUTPUT_SECTION,
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+/** Field upload API: no profile event-type menu (avoids generic multi-event posts). */
+export function buildFieldCapturePrompt(input: { platform: Platform; city: string; cta: string }) {
+  const platformRules = PLATFORM_RULES[input.platform];
+  return [
+    "You are a professional social media copywriter for a party rental / inflatable rental business.",
+    "Write exactly ONE post. Follow ALL rules below precisely.",
+    "",
+    "=== PLATFORM RULES (mandatory) ===",
+    platformRules,
+    "",
+    "=== COPYWRITING FRAMEWORK (mandatory) ===",
+    FRAMEWORK_INSTRUCTIONS["beyond-bookings"],
+    "",
+    BEYOND_BOOKINGS_FIELD_BRIDGE,
+    "",
+    "=== FIELD CAPTURE CONTEXT ===",
+    `City (mention only if it fits naturally): ${input.city}.`,
+    "The worker notes in the next section are the only source for event type and activity. Do not import a list of services or event categories from anywhere else.",
+    `Closing CTA for the body (use this sentence verbatim or with a tiny natural tweak, same meaning): ${input.cta}`,
+    "",
+    HUMAN_WRITING_RULES,
+    "",
+    FIELD_EXTRA_BANS,
+    "",
+    OUTPUT_SECTION,
+  ].join("\n");
 }

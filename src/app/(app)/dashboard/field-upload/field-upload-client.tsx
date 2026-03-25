@@ -308,7 +308,7 @@ export function FieldUploadClient({ userId, workerName }: Props) {
             onChange={(e) => setNotes(e.target.value)}
             disabled={busy || saving}
             rows={5}
-            placeholder="e.g. All Aboard toddler inflatable for a 6th birthday — rolled in at 9, grass still wet, kid’s face when the blower kicked on. Host wanted it staked tight before cousins arrived."
+            placeholder="One line is fine. Example: Jungle Safari bounce house · kid’s 6th birthday tomorrow · staking and testing blower, host wanted it tight before cousins arrive. (Item optional · event type · what you’re doing)"
             className="w-full rounded-2xl border-2 border-amber-100 bg-white/90 px-4 py-4 text-base text-stone-800 shadow-inner outline-none ring-amber-300/30 placeholder:text-stone-400 focus:border-amber-300 focus:ring-4 disabled:opacity-60"
             style={{ fontFamily: "var(--font-dm-sans)" }}
           />

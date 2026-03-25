@@ -1,5 +1,17 @@
 import type { Platform } from "@/types/platform";
 
+/** Instagram field-capture posts: clear next step, no "DM us" / link-in-bio pressure. */
+export const FIELD_CAPTURE_CTA_BANK: Record<Platform, string[]> = {
+  instagram: [
+    "Planning something similar? Message us for a quote.",
+    "Want a setup like this? Call or message us for pricing.",
+    "Ask about your date, call or message anytime.",
+    "Need this at your party? Reach out for a quick quote.",
+  ],
+  facebook: [],
+  google_business_profile: [],
+};
+
 export const PLATFORM_CTA_BANK: Record<Platform, string[]> = {
   facebook: [
     "Send us a message to lock in your date.",

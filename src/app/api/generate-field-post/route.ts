@@ -1,16 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { buildPrompt } from "@/domain/content-engine/prompt-builder";
-import { getCtaForPost } from "@/domain/content-engine/cta-rotator";
+import { buildFieldCapturePrompt } from "@/domain/content-engine/prompt-builder";
+import { getFieldCaptureCta } from "@/domain/content-engine/cta-rotator";
 import { humanizeContent } from "@/domain/content-engine/humanization-pass";
 import { validatePlatformRules } from "@/domain/content-engine/platform-rules";
-import { getSeasonalMoments } from "@/domain/content-engine/seasonal-moments";
-import {
-  ANTI_AI_RULES_SECTION,
-  FIELD_CAPTURE_BTS_BEYOND_BOOKINGS,
-  FRAMEWORK_PROMPTS,
-} from "@/lib/ai/prompts";
+import { ANTI_AI_RULES_SECTION, FIELD_CAPTURE_SYSTEM, FRAMEWORK_PROMPTS } from "@/lib/ai/prompts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getProfileWithLibrariesForSessionUser } from "@/services/repositories/profiles.repository";
 import { AnthropicProvider } from "@/services/llm/anthropic";
@@ -106,20 +101,12 @@ export async function POST(request: Request) {
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
   const city = profile.city?.trim() || "your area";
+  const cta = getFieldCaptureCta(FIELD_PLATFORM, year * 100 + month);
 
-  const seasonalMoments = getSeasonalMoments({ month, year, city });
-  const cta = getCtaForPost(FIELD_PLATFORM, 0, year * 100 + month);
-
-  const generatorAlignedPrompt = buildPrompt({
+  const fieldInstructions = buildFieldCapturePrompt({
     platform: FIELD_PLATFORM,
-    framework: "beyond-bookings",
     city,
-    eventTypes,
-    serviceCategories,
-    seasonalMoments,
     cta,
-    promoText: undefined,
-    featuredProduct: undefined,
   });
 
   const brandVoiceLine = profile.brand_notes?.trim()
@@ -127,11 +114,11 @@ export async function POST(request: Request) {
     : "";
 
   const fieldContext = `
-=== TODAY'S JOB SITE (facts to use) ===
-A crew member uploaded this photo and notes. The post must read like authentic behind-the-scenes content from that visit, merged with the Beyond Bookings rules already above (transformation, emotional payoff, Core 6 — but grounded in THIS setup).
+=== TODAY'S JOB SITE (only facts for this post) ===
+Photo + notes below. Stay on this one situation. Do not add other event types or audiences the notes do not name.
 
 ${brandVoiceLine}
-Photo URL (context only — do not paste the raw URL into the caption unless it genuinely helps):
+Photo URL (context only — do not paste the raw URL into the caption):
 ${parsed.data.photoUrl}
 
 Notes from the field:
@@ -142,15 +129,11 @@ ${parsed.data.workerNotes}
 Safety: No last names, street addresses, or private details not in the notes. If geography isn't safe to mention, stay general.
 `.trim();
 
-  const system = [
-    FRAMEWORK_PROMPTS["beyond-bookings"],
-    FIELD_CAPTURE_BTS_BEYOND_BOOKINGS,
-    ANTI_AI_RULES_SECTION,
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+  const system = [FRAMEWORK_PROMPTS["beyond-bookings"], FIELD_CAPTURE_SYSTEM, ANTI_AI_RULES_SECTION].join(
+    "\n\n",
+  );
 
-  const userPrompt = `${generatorAlignedPrompt}\n\n${fieldContext}`;
+  const userPrompt = `${fieldInstructions}\n\n${fieldContext}`;
 
   let raw: string;
   try {
