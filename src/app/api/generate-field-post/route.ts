@@ -1,52 +1,22 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { buildFieldCapturePrompt } from "@/domain/content-engine/prompt-builder";
-import { getFieldCaptureCta } from "@/domain/content-engine/cta-rotator";
+import { parseFieldUploadSections, validateFieldUploadOutput } from "@/domain/content-engine/field-upload-rules";
 import { humanizeContent } from "@/domain/content-engine/humanization-pass";
-import { validatePlatformRules } from "@/domain/content-engine/platform-rules";
-import { ANTI_AI_RULES_SECTION, FIELD_CAPTURE_SYSTEM, FRAMEWORK_PROMPTS } from "@/lib/ai/prompts";
+import { ANTI_AI_RULES_SECTION } from "@/lib/ai/prompts";
+import { FIELD_UPLOAD_COMPOSER_PROMPT } from "@/lib/ai/field-upload-prompt";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getProfileWithLibrariesForSessionUser } from "@/services/repositories/profiles.repository";
 import { AnthropicProvider } from "@/services/llm/anthropic";
 
 export const maxDuration = 60;
 
-const FIELD_PLATFORM = "instagram" as const;
-
 const bodySchema = z.object({
   workerNotes: z.string().trim().min(1, "workerNotes is required."),
   photoUrl: z.string().url("photoUrl must be a valid URL."),
 });
 
-const modelPostOutputSchema = z
-  .object({
-    hookType: z.string().trim().min(1),
-    content: z.string().trim().min(1),
-    cta: z.string().trim().min(1),
-    imageSuggestion: z.string().trim().min(1),
-  })
-  .strict();
-
 const llm = new AnthropicProvider();
-
-function splitInstagramCaptionAndHashtags(content: string): { caption: string; hashtags: string } | null {
-  const trimmed = content.trim();
-  const blocks = trimmed
-    .split(/\n\s*\n/)
-    .map((b) => b.trim())
-    .filter(Boolean);
-  if (blocks.length < 2) return null;
-  const last = blocks[blocks.length - 1]!;
-  const tokens = last.split(/\s+/).filter(Boolean);
-  if (tokens.length === 0) return null;
-  const allHash = tokens.every((t) => /^#[A-Za-z0-9_]+$/.test(t));
-  if (!allHash) return null;
-  return {
-    caption: blocks.slice(0, -1).join("\n\n"),
-    hashtags: last,
-  };
-}
 
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
@@ -97,27 +67,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
   const city = profile.city?.trim() || "your area";
-  const cta = getFieldCaptureCta(FIELD_PLATFORM, year * 100 + month);
-
-  const fieldInstructions = buildFieldCapturePrompt({
-    platform: FIELD_PLATFORM,
-    city,
-    cta,
-  });
 
   const brandVoiceLine = profile.brand_notes?.trim()
     ? `Owner voice / brand notes (use only if it fits naturally):\n${profile.brand_notes.trim()}\n`
     : "";
 
   const fieldContext = `
-=== TODAY'S JOB SITE (only facts for this post) ===
-Photo + notes below. Stay on this one situation. Do not add other event types or audiences the notes do not name.
-
+=== TODAY'S JOB SITE (facts for this post) ===
 ${brandVoiceLine}
+City (light local color only if it fits): ${city}
+
 Photo URL (context only — do not paste the raw URL into the caption):
 ${parsed.data.photoUrl}
 
@@ -126,20 +86,16 @@ Notes from the field:
 ${parsed.data.workerNotes}
 """
 
-Safety: No last names, street addresses, or private details not in the notes. If geography isn't safe to mention, stay general.
+Safety: No last names, street addresses, or private details not in the notes.
 `.trim();
 
-  const system = [FRAMEWORK_PROMPTS["beyond-bookings"], FIELD_CAPTURE_SYSTEM, ANTI_AI_RULES_SECTION].join(
-    "\n\n",
-  );
-
-  const userPrompt = `${fieldInstructions}\n\n${fieldContext}`;
+  const system = `${FIELD_UPLOAD_COMPOSER_PROMPT}\n\n${ANTI_AI_RULES_SECTION}`;
 
   let raw: string;
   try {
     const out = await llm.generate({
       system,
-      prompt: userPrompt,
+      prompt: fieldContext,
       maxTokens: 2048,
     });
     raw = out.content;
@@ -151,48 +107,33 @@ Safety: No last names, street addresses, or private details not in the notes. If
     );
   }
 
-  let content: string;
-  try {
-    const stripped = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-    const parsedOut = modelPostOutputSchema.safeParse(JSON.parse(stripped));
-    if (!parsedOut.success) {
-      return NextResponse.json(
-        { error: "Could not parse model response. Please try again." },
-        { status: 502 },
-      );
-    }
-    content = parsedOut.data.content;
-  } catch {
+  const split = parseFieldUploadSections(raw);
+  if (!split) {
     return NextResponse.json(
-      { error: "Model did not return valid JSON. Please try again." },
+      {
+        error:
+          "Could not read [CAPTION] and [HASHTAGS] from the model. Try again or shorten the notes.",
+      },
       { status: 502 },
     );
   }
 
-  content = humanizeContent(content);
-  const validationReport = validatePlatformRules(FIELD_PLATFORM, content, city);
+  const caption = humanizeContent(split.caption);
+  const hashtags = split.hashtags;
+
+  const validationReport = validateFieldUploadOutput(caption, hashtags);
   if (!validationReport.isValid) {
     return NextResponse.json(
       {
-        error: "Generated post did not pass the same platform checks as the main generator. Try again.",
+        error: "Generated post did not pass field-upload checks. Try again.",
         details: validationReport.errors,
       },
       { status: 502 },
     );
   }
 
-  const split = splitInstagramCaptionAndHashtags(content);
-  if (!split) {
-    return NextResponse.json(
-      {
-        error: "Could not separate caption and hashtag line. Please try again.",
-      },
-      { status: 502 },
-    );
-  }
-
   return NextResponse.json({
-    caption: split.caption,
-    hashtags: split.hashtags,
+    caption,
+    hashtags,
   });
 }
